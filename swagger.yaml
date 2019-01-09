@@ -21,13 +21,13 @@ security:
 paths:
   /users:
     post:
-      summary: create user , only admin
+      summary: 'create user , only admin'
       parameters:
-        - name : user_id
+        - name: user_id
           required: true
-        - name : role
+        - name: role
           in: body
-          description: user, admin, worker
+          description: 'user, admin, worker'
           required: true
       tags:
         - Users
@@ -39,7 +39,7 @@ paths:
         '500':
           description: Internal errors.
     get:
-      summary: list users, only admin
+      summary: 'list users, only admin'
       tags:
         - Users
       responses:
@@ -50,13 +50,13 @@ paths:
         '500':
           description: Internal errors.
     put:
-      summary: update user role, only admin
+      summary: 'update user role, only admin'
       tags:
         - Users
       parameters:
-        - name : user_id
+        - name: user_id
           required: true
-        - name : role
+        - name: role
           required: true
       responses:
         '200':
@@ -67,7 +67,7 @@ paths:
           description: Internal errors.
   '/users/{user_id}':
     get:
-      summary: get user info by user_id, only admin
+      summary: 'get user info by user_id, only admin'
       tags:
         - Users
       responses:
@@ -78,7 +78,7 @@ paths:
         '500':
           description: Internal errors.
     delete:
-      summary: delete user info by user_id, only admin
+      summary: 'delete user info by user_id, only admin'
       tags:
         - Users
       responses:
@@ -90,74 +90,88 @@ paths:
           description: Internal errors.
   /dataset:
     post:
-      summary: create a dataset project,default status "pending", all user
-      description: 
+      summary: 'create a dataset project,default status "pending", all user'
+      description: null
       tags:
         - Dataset
       responses:
-        200:
+        '200':
           description: OK
     get:
-      summary: get all dataset, all user
-      description:
+      summary: 'get all dataset, all user'
+      description: null
       tags:
         - Dataset
       responses:
-        200:
+        '200':
           description: OK
   '/dataset/{set_id}':
     put:
-      summary:  update basic info by set_id, admin & worker
-      description:
+      summary: 'update basic info by set_id, admin & worker'
+      description: null
       tags:
         - Dataset
-      parameters: 
+      parameters:
         - name: data_type
-          description: (string, image, video)
+          description: '(string, image, video)'
           type: integer
           required: true
         - name: wish_resault
           description: type wish resault
           type: string
       responses:
-        200:
+        '200':
           description: OK
     get:
-      summary: get dataset info by set_id, all user
-      description: 
+      summary: 'get dataset info by set_id, all user'
+      description: null
       tags:
         - Dataset
       responses:
-        200:
+        '200':
           description: OK
     delete:
-      summary: delete dataset by set_id, only admin
-      description: 
+      summary: 'delete dataset by set_id, only admin'
+      description: null
       tags:
         - Dataset
       responses:
-        200:
+        '200':
           description: OK
   '/dataset/{set_id}/status':
     get:
-      summary: get dateset status("pending" , "on-going" , "review" , "close")
-      description:
+      summary: 'get dateset status("pending" , "on-going" , "review" , "close")'
+      description: null
       tags:
         - Dataset
       responses:
-        200:
+        '200':
           description: OK
     put:
       summary: update dataset status by set_id
-      description: 
+      description: null
       tags:
         - Dataset
       parameters:
         - name: status_id
-          description: pending, on-going, review, close
+          description: 'pending, on-going, review, close'
+      responses:
+        '200':
+          description: OK
+  '/dataset/{set_id}/list':
+    get:
+      summary: get data list (name,url,response,filter_fun)
+      description: 
+      tags:
+        - Dataset
+      parameters: 
+        - name: file_name
+        - name: file_url
+        - name: response
+          description: data mapping info key - value ,<br> ex. voice <-> string (by timestamp)<br> video <-> string (by timestamp)<br> image <->string (tag)
+        - name: filter_fun
+          description: like enging
       responses:
         200:
           description: OK
     
-          
-          

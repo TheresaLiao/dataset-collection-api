@@ -16,45 +16,45 @@ const configPath = "./config.json"
 const urlSslHeader = "https://"
 const urlHeader = "http://"
 
-var configPara ConfigPara
+// var configPara ConfigPara
 var log = logging.MustGetLogger("main")
 
-type HttpResp struct {
-	StatusCode int
-	Context    string
-}
+// type HttpResp struct {
+// 	StatusCode int
+// 	Context    string
+// }
 
-type VersionObj struct {
-	Version string `form:"version" json:"version" binding:"required"`
-}
+// type VersionObj struct {
+// 	Version string `form:"version" json:"version" binding:"required"`
+// }
 
-type ConfigPara struct {
-	Version              string   `json:"version"`
-	TempServiceYaml      string   `json:"tempServiceYaml"`
-	TempPodYaml          string   `json:"tempPodYaml"`
-	YamlPath             string   `json:"yamlPath"`
-	FileNameServiceYaml  string   `json:"fileNameServiceYaml"`
-	FileNamePodYaml      string   `json:"fileNamePodYaml"`
-	ApiHost              string   `json:"apiHost"`
-	ApiServices          string   `json:"apiServices"`
-	ApiPod               string   `json:"apiPod"`
-	FormatStr1           string   `json:"formatStr1"`
-	FormatStr2           string   `json:"formatStr2"`
-	TokenPath            string   `json:"tokenPath"`
-	HttpHeaderTypeKey    string   `json:"httpHeaderTypeKey"`
-	HttpHeaderTypeYaml   string   `json:"httpHeaderTypeYaml"`
-	NfsHost              string   `json:"nfsHost"`
-	NfsPort              string   `json:"nfsPort"`
-	NfsUrl               string   `json:"nfsUrl"`
-	RegistryDnsName      string   `json:"registryDnsName"`
-	RegistryIntPort      string   `json:"registryIntPort"`
-	RegistryExtPort      string   `json:"registryExtPort"`
-	RegistryList         []string `json:"registryList"`
-	RegistryUrlVer       string   `json:"registryUrlVer"`
-	RegistryUrlRepo      string   `json:"registryUrlRepo"`
-	RegistryUrlTags      string   `json:"registryUrlTags"`
-	RegistryUrlManifests string   `json:"registryUrlManifests"`
-}
+// type ConfigPara struct {
+// 	Version              string   `json:"version"`
+// 	TempServiceYaml      string   `json:"tempServiceYaml"`
+// 	TempPodYaml          string   `json:"tempPodYaml"`
+// 	YamlPath             string   `json:"yamlPath"`
+// 	FileNameServiceYaml  string   `json:"fileNameServiceYaml"`
+// 	FileNamePodYaml      string   `json:"fileNamePodYaml"`
+// 	ApiHost              string   `json:"apiHost"`
+// 	ApiServices          string   `json:"apiServices"`
+// 	ApiPod               string   `json:"apiPod"`
+// 	FormatStr1           string   `json:"formatStr1"`
+// 	FormatStr2           string   `json:"formatStr2"`
+// 	TokenPath            string   `json:"tokenPath"`
+// 	HttpHeaderTypeKey    string   `json:"httpHeaderTypeKey"`
+// 	HttpHeaderTypeYaml   string   `json:"httpHeaderTypeYaml"`
+// 	NfsHost              string   `json:"nfsHost"`
+// 	NfsPort              string   `json:"nfsPort"`
+// 	NfsUrl               string   `json:"nfsUrl"`
+// 	RegistryDnsName      string   `json:"registryDnsName"`
+// 	RegistryIntPort      string   `json:"registryIntPort"`
+// 	RegistryExtPort      string   `json:"registryExtPort"`
+// 	RegistryList         []string `json:"registryList"`
+// 	RegistryUrlVer       string   `json:"registryUrlVer"`
+// 	RegistryUrlRepo      string   `json:"registryUrlRepo"`
+// 	RegistryUrlTags      string   `json:"registryUrlTags"`
+// 	RegistryUrlManifests string   `json:"registryUrlManifests"`
+// }
 
 func main() {
 	//init log
@@ -66,24 +66,8 @@ func main() {
 	//GET Default version
 	router.GET("/", showVersion)
 
-	//POST(C)
-	router.POST("/kubeGpu/container", createContainerHandler)
-
-	//Single
-	router.GET("/kubeGpu/container/:machineId", getContainerHandler)
-	router.DELETE("/kubeGpu/container/:machineId", deleteContainerHandler)
-
-	//All
-	router.GET("/kubeGpu/containers", getContainersHandler)
-	router.DELETE("/kubeGpu/containers", deleteContainersHandler)
-
 	//volumn
 	router.POST("/kubeGpu/volumn", createVolumnHandler)
-	router.DELETE("/kubeGpu/volumn/:account", deleteVolumnHandler)
-
-	//volumn
-	router.GET("/kubeGpu/images", getImagesListHandler)
-	router.GET("/kubeGpu/image/:repository", getImageHandler)
 
 	router.Run(":8000")
 }

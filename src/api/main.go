@@ -46,7 +46,7 @@ func convertBody2Str(resp *http.Response) (context string) {
 		log.Info(string(data))
 		return
 	}
-	log.Info(string(data))
+	//log.Info(string(data))
 	return string(data)
 }
 

@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"github.com/gin-gonic/gin"
-	"github.com/op/go-logging"
+	// "github.com/op/go-logging"
+	"log"
 )
 
 var log = logging.MustGetLogger("main")

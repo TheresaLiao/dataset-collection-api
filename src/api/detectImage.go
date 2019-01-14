@@ -43,7 +43,7 @@ func detectionApiPost(apiUrl string,c *gin.Context)(httpResp HttpResp) {
     	bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
 	}
 	buffer := bytes.NewBuffer(bodyBytes)
-	log.Info(buffer)
+	//log.Info(buffer)
 
 	// set request setting 
 	log.Info("apiUrl : " + apiUrl)

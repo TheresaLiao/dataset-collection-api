@@ -1,7 +1,7 @@
 FROM golang:1.11.2-alpine
-WORKDIR /api
-ADD /golang /api/
-RUN cd /api/golang/ && go build -o main
-RUN rm -rf /api/golang
+WORKDIR /apiserver
+ADD /golang /apiserver/
+RUN cd /apiserver/ && go build -o main
+RUN rm -rf /apiserver/
 EXPOSE 8080
-ENTRYPOINT ./api
+ENTRYPOINT ./apiserver

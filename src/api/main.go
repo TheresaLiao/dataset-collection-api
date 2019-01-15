@@ -24,7 +24,7 @@ func main() {
 	router.GET("/", check)
 
 	// filter fun.
-	router.POST("/filerfun/detectImg", postDetectImgHandler)
+	router.POST("/filterfun/detectImg", postDetectImgHandler)
 
 	// dataset
 	//router.POST("/dataSet/crawingCarAcdnt", crawingCarAcdntHandler)

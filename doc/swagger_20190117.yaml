@@ -45,6 +45,12 @@ paths:
       tags:
         - filterfun/caracdnt
       description: null
+  /filterfun/caracdnt/isdashcam:
+    post:
+      summary: 辨識影片是否為行車紀錄器所拍攝的影片
+      tags:
+        - filterfun/caracdnt
+      description: null
   /filterfun/subtitle/gensrt:
     post:
       summary: '確認影片是否有srt檔, 有網路位置則回傳收尋結果 , 無則系統產生SRT file'

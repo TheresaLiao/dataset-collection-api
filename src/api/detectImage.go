@@ -11,6 +11,9 @@ import (
 
 var detectImgUrl = "http://task5-1:50008/detection"
 
+
+
+
 /*
  * input binary 
  * output json file

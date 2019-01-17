@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: dataset-collection-api
+  description: for dataset api
+servers:
+  - url: 'http://140.96.0.34:50011'
+paths:
+  /filterfun/detectImg:
+    post:
+      tags:
+        - filterfun
+      description: detect image by yolo
+      requestBody:
+        description: upload image that yolo detect can object and location
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              format: binary
+      responses:
+        '200':
+          description: get yolo detect object and location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectImg'
+        '500':
+          description: Unexpected internal errors.
+components:
+  schemas:
+    DetectImg:
+      properties:
+        category:
+          description: after detect object name ex. kite, cat, dog, person
+          type: string
+        confidence:
+          type: number
+        coordinate:
+          description: center_x, center_y, wight, length
+          type: array
+          items:
+            type: number
+            

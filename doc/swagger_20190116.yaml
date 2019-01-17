@@ -1,0 +1,124 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: dataset-collection-api
+  description: for dataset api
+servers:
+  - url: 'http://140.96.0.34:50011'
+paths:
+  /dataset/caracdnt:
+    get:
+      summary: 爬取Youtube車禍影片
+      tags: 
+         - dataset
+      description: input 關鍵字output filename,url
+  /dataset/subtitle:
+    get:
+      summary: 爬取有字幕檔的影片
+      tags: 
+        - dataset
+      description: convert viedio subtitle into image list
+  /filterfun/caracdnt/checkhascar:
+    post:
+      summary: 偵測影帶中有車子物件
+      tags: 
+        - filterfun/caracdnt
+      description:
+  /filterfun/caracdnt/serachtime:
+    post:
+      summary: 尋找影帶車禍時間點
+      tags: 
+        - filterfun/caracdnt
+      description:
+  /filterfun/caracdnt/objects:
+    post:
+      summary: 確認相撞的物件
+      tags: 
+        - filterfun/caracdnt
+      description:
+  /filterfun/subtitle/checksrt:
+    post:
+      summary: 確認影片是否有srt檔
+      tags:
+        - filterfun/subtitle
+      description:
+  /filterfun/subtitle/removeback:
+    post:
+      summary: 將影片處理去背
+      tags:
+        - filterfun/subtitle
+      description:
+  /filterfun/subtitle/taglocation:
+    post:
+      summary: 確認是否有字幕，以及字幕位置
+      tags:
+        - filterfun/subtitle
+      description:
+  /filterfun/subtitle/orc2str:
+    post:
+      summary: convert orc to string
+      tags:
+        - filterfun/subtitle
+      description:
+  /filterfun/subtitle/str2srt:
+    post:
+      summary: convert string to SRT
+      tags:
+        - filterfun/subtitle
+      description:
+  
+  /filterfun/detectImg/object:
+    post:
+      summary: detect image by yolo
+      tags:
+        - default
+      description: detect image by yolo
+      requestBody:
+        description: upload image that yolo detect can object and location
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              format: binary
+      responses:
+        '200':
+          description: get yolo detect object and location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectImg'
+        '500':
+          description: Unexpected internal errors.
+components:
+  schemas:
+    DetectImg:
+      properties:
+        category:
+          description: after detect object name ex. kite, cat, dog, person
+          type: string
+        confidence:
+          type: number
+        coordinate:
+          description: center_x, center_y, wight, length
+          type: array
+          items:
+            type: number
+    ViedoInfo:
+      properties:
+        id:
+          description: uuid
+          type: string
+        title:
+          description: viedo name
+          type: string
+        copyright:
+          type: string
+        viedo_url:
+          description: viedo link 
+          type: string
+        tag:
+          description: show fileter string ,like "car+accident"
+          type: string
+        viedo_id:
+          description:
+          type: string

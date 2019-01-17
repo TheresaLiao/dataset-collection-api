@@ -12,6 +12,15 @@ paths:
       tags:
         - dataset
       description: 'input filterstr, output filename,url'
+      responses:
+        '200':
+          description: get yolo detect object and location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ViedoInfo'
+        '500':
+          description: Unexpected internal errors.
   /dataset/caracdnt:
     get:
       summary: 爬取Youtube車禍影片

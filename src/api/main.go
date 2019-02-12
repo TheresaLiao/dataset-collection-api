@@ -9,6 +9,7 @@ import (
 )
 
 var log = logging.MustGetLogger("main")
+var whiteip1 = "140.96.29.153"
 type HttpResp struct {
 	StatusCode int
 	Context    string
@@ -19,6 +20,11 @@ func main() {
 	// initLogSetting(logging.DEBUG)
 	fmt.Println("start api")
 	router := gin.Default()
+
+	// Check client ip is accept to connect
+	whitelist := make(map[string]bool)
+	whitelist[whiteip1] = true
+	router.Use(IPWhiteList(whitelist))
 
 	//GET Default version
 	router.GET("/", check)
@@ -32,11 +38,39 @@ func main() {
 	router.Run(":80")
 }
 
-
 func check(c *gin.Context) {
-	c.String(http.StatusOK, "apiserver ready!")
+	c.AbortWithStatusJSON(http.StatusOK, gin.H{
+		"status":  http.StatusOK,
+		"message": "apiserver ready",
+	})
 }
 
+
+func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        if !whitelist[c.ClientIP()] {
+			//c.String(http.StatusForbidden, "Permission denied")
+            c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+                "status":  http.StatusForbidden,
+                "message": "Permission denied",
+            })
+            return
+        }
+    }
+}
+
+// func checkClientIp (c *gin.Context) {
+// 	whitelisted := false
+//     for _, v := range whitelist {
+//         if v == c.ClientIP() {
+//              whitelisted = true
+//         }
+//     }
+//     if checkClientIp() == false{
+// 		retutn c.String(http.StatusForbidden, gin.H{})
+// 	}
+// 	retutn c
+// }
 
 
 func convertBody2Str(resp *http.Response) (context string) {

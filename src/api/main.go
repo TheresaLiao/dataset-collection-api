@@ -59,19 +59,6 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
     }
 }
 
-// func checkClientIp (c *gin.Context) {
-// 	whitelisted := false
-//     for _, v := range whitelist {
-//         if v == c.ClientIP() {
-//              whitelisted = true
-//         }
-//     }
-//     if checkClientIp() == false{
-// 		retutn c.String(http.StatusForbidden, gin.H{})
-// 	}
-// 	retutn c
-// }
-
 
 func convertBody2Str(resp *http.Response) (context string) {
 	data, err := ioutil.ReadAll(resp.Body)

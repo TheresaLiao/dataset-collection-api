@@ -10,6 +10,11 @@ import (
 
 var log = logging.MustGetLogger("main")
 var whiteip1 = "140.96.29.153"
+var whiteip2 = "210.61.209.193"
+var whiteip3 = "210.61.209.194"
+var whiteip4 = "210.61.209.195"
+var whiteip5 = "210.61.209.196"
+var whiteip6 = "210.61.209.197"
 type HttpResp struct {
 	StatusCode int
 	Context    string
@@ -24,6 +29,12 @@ func main() {
 	// Check client ip is accept to connect
 	whitelist := make(map[string]bool)
 	whitelist[whiteip1] = true
+	whitelist[whiteip2] = true
+	whitelist[whiteip3] = true
+	whitelist[whiteip4] = true
+	whitelist[whiteip5] = true
+	whitelist[whiteip6] = true
+	
 	router.Use(IPWhiteList(whitelist))
 
 	//GET Default version

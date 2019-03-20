@@ -1,9 +1,10 @@
 package main
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 )
@@ -18,6 +19,11 @@ var whiteip5 = "210.61.209.194"
 var whiteip6 = "210.61.209.195"
 var whiteip7 = "210.61.209.196"
 var whiteip8 = "210.61.209.197"
+
+var whiteip9 = "192.168.168.1"
+
+var cntConnection = 0
+
 type HttpResp struct {
 	StatusCode int
 	Context    string
@@ -39,6 +45,8 @@ func main() {
 	whitelist[whiteip6] = true
 	whitelist[whiteip7] = true
 	whitelist[whiteip8] = true
+        whitelist[whiteip9] = true
+
 
 	router.Use(IPWhiteList(whitelist))
 
@@ -49,6 +57,7 @@ func main() {
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
 
 	// dataset
+	router.GET("/dataset/subtitle", subTitleHandler)
 	//router.POST("/dataSet/crawingCarAcdnt", crawingCarAcdntHandler)
 
 	router.Run(":80")
@@ -57,24 +66,24 @@ func main() {
 func check(c *gin.Context) {
 	c.AbortWithStatusJSON(http.StatusOK, gin.H{
 		"status":  http.StatusOK,
-		"message": "apiserver ready",
+		"message": "apiserver ready and Summary Connection ",
 	})
 }
 
-
 func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
-    return func(c *gin.Context) {
-        if !whitelist[c.ClientIP()] {
+	return func(c *gin.Context) {
+		fmt.Println(c.ClientIP())
+		if !whitelist[c.ClientIP()] {
 			//c.String(http.StatusForbidden, "Permission denied")
-            c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
-                "status":  http.StatusForbidden,
-                "message": "Permission denied",
-            })
-            return
-        }
-    }
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+				"status":  http.StatusForbidden,
+				"message": "Permission denied",
+			})
+			return
+		}
+		cntConnection++
+	}
 }
-
 
 func convertBody2Str(resp *http.Response) (context string) {
 	data, err := ioutil.ReadAll(resp.Body)

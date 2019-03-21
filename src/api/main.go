@@ -45,10 +45,9 @@ func main() {
 	whitelist[whiteip6] = true
 	whitelist[whiteip7] = true
 	whitelist[whiteip8] = true
-        whitelist[whiteip9] = true
+	whitelist[whiteip9] = true
 
-
-	router.Use(IPWhiteList(whitelist))
+	//router.Use(IPWhiteList(whitelist))
 
 	//GET Default version
 	router.GET("/", check)
@@ -74,7 +73,6 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		fmt.Println(c.ClientIP())
 		if !whitelist[c.ClientIP()] {
-			//c.String(http.StatusForbidden, "Permission denied")
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
 				"status":  http.StatusForbidden,
 				"message": "Permission denied",

@@ -20,8 +20,6 @@ var whiteip6 = "210.61.209.195"
 var whiteip7 = "210.61.209.196"
 var whiteip8 = "210.61.209.197"
 
-var whiteip9 = "192.168.168.1"
-
 var cntConnection = 0
 
 type HttpResp struct {
@@ -45,7 +43,6 @@ func main() {
 	whitelist[whiteip6] = true
 	whitelist[whiteip7] = true
 	whitelist[whiteip8] = true
-	whitelist[whiteip9] = true
 
 	//router.Use(IPWhiteList(whitelist))
 
@@ -56,7 +53,9 @@ func main() {
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
 
 	// dataset
-	router.GET("/dataset/subtitle", subTitleHandler)
+	router.GET("/dataset/subtitle", querySubtitleTagHandler)
+	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitletagidHandler)
+
 	//router.POST("/dataSet/crawingCarAcdnt", crawingCarAcdntHandler)
 
 	router.Run(":80")

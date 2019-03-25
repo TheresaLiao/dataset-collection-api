@@ -8,9 +8,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const connStr = "postgres://admin:12345@140.96.29.202:5566/eflab?sslmode=disable"
-var db *sql.DB
-
 type SubtitleTag struct {
 	Id  int `json:"id"`
 	TagName string `json:"tagName"`
@@ -20,27 +17,6 @@ type Subtitle struct {
 	Id  int `json:"id"`
 	Title string `json:"title"`
 	Url string `json:"url"`
-}
-
-
-// func connectPostgrepsql(){
-// 	db, err := sql.Open("postgres",connStr)
-// 	if err != nil{
-// 		panic(err)
-// 	}
-// 	defer db.Close()
-
-// 	err = db.Ping()
-// 	if err != nil{
-// 		panic(err)
-// 	}
-// 	fmt.Println("success connection")
-// }
-
-func checkError(err error) {
-    if err != nil {
-        panic(err)
-    }
 }
 
 func querySubtitleTagHandler(c *gin.Context){
@@ -85,7 +61,7 @@ func querySubtitleTagHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": subtitleTags})
 }
 
-func querySubtitleBySubtitletagidHandler(c *gin.Context){
+func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
 
 	// connect db
@@ -118,6 +94,7 @@ func querySubtitleBySubtitletagidHandler(c *gin.Context){
 	var embedded bool
 	var plugIn bool
 	var videoLength int
+
 	var subtitle Subtitle
 	var subtitles []Subtitle
 

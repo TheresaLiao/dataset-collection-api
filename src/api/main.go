@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 )
+
+const connStr = "postgres://admin:12345@140.96.29.202:5566/eflab?sslmode=disable"
+var db *sql.DB
 
 var log = logging.MustGetLogger("main")
 var whiteip1 = "140.96.29.153"
@@ -54,9 +57,11 @@ func main() {
 
 	// dataset
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)
-	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitletagidHandler)
+	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
 
-	//router.POST("/dataSet/crawingCarAcdnt", crawingCarAcdntHandler)
+	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
+	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
+
 
 	router.Run(":80")
 }
@@ -91,6 +96,12 @@ func convertBody2Str(resp *http.Response) (context string) {
 	}
 	//log.Info(string(data))
 	return string(data)
+}
+
+func checkError(err error) {
+    if err != nil {
+        panic(err)
+    }
 }
 
 // func LoadConfiguration() gin.HandlerFunc {

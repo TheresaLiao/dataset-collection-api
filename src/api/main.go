@@ -54,6 +54,8 @@ func main() {
 
 	// filter fun.
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
+	router.POST("/filterfun/youtube", url2Localpath)
+	router.GET("/filterfun/download/:filename", download)
 
 	// dataset
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)
@@ -165,3 +167,5 @@ func checkError(err error) {
 // 	// Set the backends to be used.
 // 	logging.SetBackend(consoleBackendLeveled, fileBackendLeveled)
 // }
+
+

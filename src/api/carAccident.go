@@ -25,7 +25,7 @@ type CarAccidentTag struct {
 }
 
 func queryCarAccidentTagHandler(c *gin.Context){
-    // connect db
+	// connect db
 	db, err := sql.Open("postgres",connStr)
 	if err != nil{
 		panic(err)
@@ -37,7 +37,6 @@ func queryCarAccidentTagHandler(c *gin.Context){
 		panic(err)
 	}
 	fmt.Println("success connection")
-
 
 	// select table :car_accident_tag ,all rows data
 	sql_statement := "SELECT * FROM  car_accident_tag;"
@@ -120,5 +119,4 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
         }
 	}
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidents})
-
 }

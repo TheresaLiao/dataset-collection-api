@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 )
 
 const connStr = "postgres://admin:12345@140.96.29.202:5566/eflab?sslmode=disable"
-var db *sql.DB
-
 var log = logging.MustGetLogger("main")
+
 var whiteip1 = "140.96.29.153"
 var whiteip2 = "140.96.29.211"
 var whiteip3 = "140.96.29.202"
@@ -52,10 +50,13 @@ func main() {
 	//GET Default version
 	router.GET("/", check)
 
+	router.GET("/compressTar", compressTar)
+
 	// filter fun.
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
-	router.POST("/filterfun/youtube", url2Localpath)
-	router.GET("/filterfun/download/:filename", download)
+	router.POST("/filterfun/youtubeUrl", url2Download)
+	// router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
+	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
 
 	// dataset
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)

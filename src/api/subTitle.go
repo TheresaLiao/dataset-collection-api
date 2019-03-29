@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"database/sql"
 	_ "github.com/lib/pq"
@@ -31,7 +30,7 @@ func querySubtitleTagHandler(c *gin.Context){
 	if err != nil{
 		panic(err)
 	}
-	fmt.Println("success connection")
+	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
 	sql_statement := "SELECT * FROM subtitle_tag;"
@@ -48,11 +47,11 @@ func querySubtitleTagHandler(c *gin.Context){
 	for rows.Next() {
 		switch err := rows.Scan(&id, &tagName); err {
         case sql.ErrNoRows:
-           	fmt.Println("No rows were returned")
+			log.Info("No rows were returned")
 		case nil:
 			subtitleTag.Id = id
 			subtitleTag.TagName = tagName
-			fmt.Printf("Data row = (%d, %s)\n", id, tagName)
+			log.Info("Data row = (%d, %s)\n", id, tagName)
 			subtitleTags = append(subtitleTags, subtitleTag)
         default:
            checkError(err)
@@ -75,7 +74,7 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	if err != nil{
 		panic(err)
 	}
-	fmt.Println("success connection")
+	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
 	sql_statement := "SELECT *  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
@@ -103,13 +102,13 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 			&subtitleLanguage, &copyRight, &url,
 			&videoId, &youtubeId, &embedded, &plugIn, &videoLength); err {
         case sql.ErrNoRows:
-           	fmt.Println("No rows were returned")
+			log.Info("No rows were returned")
 		case nil:
-			fmt.Printf("Data row = (%d, %s, %d)\n", id, title, url)
+			log.Info("Data row = (%d, %s, %d)\n", id, title, url)
 			subtitle.Id = id
 			subtitle.Title = title
 			subtitle.Url = url
-			fmt.Printf("Data row = (%d, %s, %s)\n", id, title, url)
+			log.Info("Data row = (%d, %s, %s)\n", id, title, url)
 			subtitles = append(subtitles, subtitle)
 			   
         default:

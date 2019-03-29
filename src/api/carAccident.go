@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"database/sql"
 	_ "github.com/lib/pq"
@@ -36,7 +35,7 @@ func queryCarAccidentTagHandler(c *gin.Context){
 	if err != nil{
 		panic(err)
 	}
-	fmt.Println("success connection")
+	log.Info("success connection")
 
 	// select table :car_accident_tag ,all rows data
 	sql_statement := "SELECT * FROM  car_accident_tag;"
@@ -53,11 +52,11 @@ func queryCarAccidentTagHandler(c *gin.Context){
 	for rows.Next() {
 		switch err := rows.Scan(&id, &tagName); err {
         case sql.ErrNoRows:
-           	fmt.Println("No rows were returned")
+			log.Info("No rows were returned")
 		case nil:
 			carAccidentTag.Id = id
 			carAccidentTag.TagName = tagName
-			fmt.Printf("Data row = (%d, %s)\n", id, tagName)
+			log.Info("Data row = (%d, %s)\n", id, tagName)
 			carAccidentTags = append(carAccidentTags, carAccidentTag)
         default:
            checkError(err)
@@ -80,7 +79,7 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 	if err != nil{
 		panic(err)
 	}
-	fmt.Println("success connection")
+	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
 	sql_statement := "SELECT * FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
@@ -105,13 +104,13 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 			&copyRight, &accidentTime, &carType,
 			&dayTime, &collision); err {
         case sql.ErrNoRows:
-           	fmt.Println("No rows were returned")
+			log.Info("No rows were returned")
 		case nil:
-			fmt.Printf("Data row = (%d, %s, %d)\n", id, title, url)
+			log.Info("Data row = (%d, %s, %d)\n", id, title, url)
 			carAccident.Id = id
 			carAccident.Title = title
 			carAccident.Url = url
-			fmt.Printf("Data row = (%d, %s, %s)\n", id, title, url)
+			log.Info("Data row = (%d, %s, %s)\n", id, title, url)
 			carAccidents = append(carAccidents, carAccident)
 			   
         default:

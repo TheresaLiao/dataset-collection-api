@@ -50,12 +50,10 @@ func main() {
 	//GET Default version
 	router.GET("/", check)
 
-	router.GET("/compressTar", compressTar)
-
 	// filter fun.
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
-	router.POST("/filterfun/youtubeUrl", url2Download)
-	// router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
+	router.POST("/filterfun/youtubeUrl", url2file)
+	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
 	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
 
 	// dataset

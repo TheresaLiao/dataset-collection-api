@@ -21,7 +21,7 @@ docker run --name task5-4 -ti -d  --network=datasetbridge -p 50010:22 -p 50011:8
 $ curl --header "Content-Type: application/json" \
        --request POST \
        --data '{"filename":"test","url":"https://www.youtube.com/watch?v=JpcTvrSdBoE"}' \
-       http://localhost:50011/filterfun/youtube \
+       http://localhost:50011/filterfun/youtubeUrl \
        --output test.mp4
 
 //call by caracdnt id

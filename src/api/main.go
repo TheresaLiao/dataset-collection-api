@@ -53,7 +53,7 @@ func main() {
 	// filter fun.
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
 	router.POST("/filterfun/youtubeUrl", url2file)
-	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
+	//router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
 	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
 
 	// dataset

@@ -12,7 +12,7 @@ import (
 //const connStr = "postgres://admin:12345@140.96.29.202:5566/eflab?sslmode=disable"
 
 // production
-const connStr = "postgres://admin:12345@task5-1:5432/database_project?sslmode=disable"
+const connStr = "postgres://admin:12345@MyPostgres:5432/database_project?sslmode=disable"
 
 var log = logging.MustGetLogger("main")
 

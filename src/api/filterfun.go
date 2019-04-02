@@ -163,7 +163,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ") limit 2;"
+	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()

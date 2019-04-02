@@ -77,30 +77,20 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT *  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
+	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
 
 	var id int
 	var title string
-	var videoLanguage string
-	var subtitleLanguage string
-	var copyRight string
 	var url string
-	var videoId string
-	var youtubeId string
-	var embedded bool
-	var plugIn bool
-	var videoLength int
 
 	var subtitle Subtitle
 	var subtitles []Subtitle
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &videoLanguage,
-			&subtitleLanguage, &copyRight, &url,
-			&videoId, &youtubeId, &embedded, &plugIn, &videoLength); err {
+		switch err := rows.Scan(&id, &title, &url); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:

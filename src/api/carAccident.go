@@ -82,7 +82,7 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT * FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
+	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
@@ -90,19 +90,12 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 	var id int
 	var title string
 	var url string
-	var copyRight string
-	var accidentTime string
-	var carType string
-	var dayTime string
-	var collision string
 
 	var carAccident CarAccident
 	var carAccidents []CarAccident
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &url,
-			&copyRight, &accidentTime, &carType,
-			&dayTime, &collision); err {
+		switch err := rows.Scan(&id, &title, &url); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:

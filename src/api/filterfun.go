@@ -124,27 +124,17 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT *  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
+	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
 
 	var id int
 	var title string
-	var videoLanguage string
-	var subtitleLanguage string
-	var copyRight string
 	var url string
-	var videoId string
-	var youtubeId string
-	var embedded bool
-	var plugIn bool
-	var videoLength int
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &videoLanguage,
-			&subtitleLanguage, &copyRight, &url,
-			&videoId, &youtubeId, &embedded, &plugIn, &videoLength); err {
+		switch err := rows.Scan(&id, &title,  &url); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:			
@@ -173,7 +163,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT * FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
+	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ") limit 2;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
@@ -181,16 +171,9 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
 	var id int
 	var title string
 	var url string
-	var copyRight string
-	var accidentTime string
-	var carType string
-	var dayTime string
-	var collision string
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &url,
-			&copyRight, &accidentTime, &carType,
-			&dayTime, &collision); err {
+		switch err := rows.Scan(&id, &title, &url); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:

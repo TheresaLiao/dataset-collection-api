@@ -8,6 +8,7 @@ import (
 	. "github.com/kkdai/youtube"
 	_ "github.com/lib/pq"
 	"database/sql"
+	"encoding/csv"
 )
 type YoutubeInfoVo struct {
 	FileName string `form:"filename" json:"filename" binding:"required"`
@@ -21,6 +22,20 @@ const VIEDO_PATH = "viedo"
 const FILE_EXTENTION_TAR = ".tar.gz"
 const FILE_EXTENTION_MP4 = ".mp4"
 
+func getcsv(c *gin.Context){
+
+	records := [][]string{
+		{"id","collision_time","url"},
+		{"1","Null","https://www.youtube.com/watch?v=B3ehIhlZVD8"},
+	}
+
+	w := csv.NewWriter(os.Stdout)
+	w.WriteAll(records) // calls Flush internally
+
+	if err := w.Error(); err != nil {
+		log.Info("error writing csv:", err)
+	}
+}
 
 func url2DownloadSubtitle(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
@@ -214,3 +229,5 @@ func respFile2Client(c *gin.Context,destFilePath string){
    	c.Header("Content-Type", "application/octet-stream")
    	c.File(destFilePath)
 }
+
+

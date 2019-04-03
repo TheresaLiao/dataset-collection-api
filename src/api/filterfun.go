@@ -14,17 +14,29 @@ type YoutubeInfoVo struct {
 	Url string `form:"url" json:"url" binding:"required"`
 }
 const DOWNLOADS_PATH = "/tmp"
+const SUBTITLE_PATH = "subtitle_"
+const CARACDNT_PATH = "caracdnt_"
+const TEMP_PATH = "temp"
+const VIEDO_PATH = "viedo"
+const FILE_EXTENTION_TAR = ".tar.gz"
+const FILE_EXTENTION_MP4 = ".mp4"
+
 
 func url2DownloadSubtitle(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
-	parentFolderName := "subtitle_"+subtitleTagIdStr
-	srcDirPath := filepath.Join(DOWNLOADS_PATH , parentFolderName)
-	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName+".tar.gz")
+	// parentFolderName : subtitle_N , ex. subtitle_1,subtitle_2...
+	parentFolderName := SUBTITLE_PATH + subtitleTagIdStr
+	// srcDirPath : /tmp/subtitle_N
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
+	// srcDirPathViedo : /tmp/subtitle_N/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	// srcDirPath : /tmp/subtitle_N.tar.gz
+	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
 	if checkFileIsExit(destFilePath) == false{
-		if checkFileIsExit(srcDirPath) == false{
+		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
-			querySubtitle(subtitleTagIdStr,srcDirPath)
+			querySubtitle(subtitleTagIdStr,srcDirPathViedo)
 		}
 		// tar download folder
 		tarDir(srcDirPath,destFilePath)
@@ -35,14 +47,19 @@ func url2DownloadSubtitle(c *gin.Context){
 
 func url2DownloadCaracdnt(c *gin.Context){
 	carAccidentTagIdStr := c.Param("carAccidentTagId")
-	parentFolderName := "caracdnt_"+carAccidentTagIdStr
-	srcDirPath := filepath.Join(DOWNLOADS_PATH , parentFolderName)
-	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName+".tar.gz")
+	// parentFolderName : caracdnt_N , ex. caracdnt_1,caracdnt_2...
+	parentFolderName := CARACDNT_PATH + carAccidentTagIdStr
+	// srcDirPath : /tmp/caracdnt_N
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
+	// srcDirPathViedo : /tmp/caracdnt_N/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	// srcDirPath : /tmp/caracdnt_N.tar.gz
+	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
 	if checkFileIsExit(destFilePath) == false{
-		if checkFileIsExit(srcDirPath) == false{
+		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
-			queryCaracdnt(carAccidentTagIdStr,srcDirPath)
+			queryCaracdnt(carAccidentTagIdStr,srcDirPathViedo)
 		}
 		// tar download folder
 		tarDir(srcDirPath,destFilePath)
@@ -58,11 +75,11 @@ func url2file(c *gin.Context){
 	log.Info("Parameter FileName :" + youtubeInfoVo.FileName)
 	log.Info("Parameter url :" + youtubeInfoVo.Url)
 	
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, "temp")
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TEMP_PATH)
 	videoID := checkUrlAndDownload(youtubeInfoVo.Url, srcDirPath)
 	
 	// download file from server to client
-	destFilePath := filepath.Join(srcDirPath, videoID+".mp4")
+	destFilePath := filepath.Join(srcDirPath, videoID + FILE_EXTENTION_MP4)
 	respFile2Client(c,destFilePath)
 
 	// Remove download file
@@ -96,7 +113,7 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	}
 
 	// download file to localpath
-	filename := filepath.Join(srcDirPath, y.VideoID + ".mp4")
+	filename := filepath.Join(srcDirPath, y.VideoID + FILE_EXTENTION_MP4)
 	log.Info("filename : " + filename)
 	if err := y.StartDownload(filename); err != nil {
 		log.Info("Error StartDownload")
@@ -124,7 +141,7 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
+	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ")  limit 3;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
@@ -163,7 +180,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
+	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ")  limit 3;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()

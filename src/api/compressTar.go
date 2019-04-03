@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"compress/gzip"
+	"strings"
+	"io/ioutil"
 )
 
 func compressTar(c *gin.Context){
@@ -27,7 +29,7 @@ func compressTar(c *gin.Context){
 	})
 }
 
-func tarDir(srcDirPath string,destFilePath string){
+func tarDir(srcDirPath string, destFilePath string){
 	 // file write
 	 fw, err := os.Create(destFilePath)
 	 if err != nil {
@@ -42,41 +44,60 @@ func tarDir(srcDirPath string,destFilePath string){
 	 tw := tar.NewWriter(gw)
 	 defer tw.Close()
  
-	 dir, err := os.Open(srcDirPath)
-     if err != nil {
-		log.Error("err ", err)
-	 }
-	 defer dir.Close()
-	 files, err := dir.Readdir(0)
-	 if err != nil {
-		log.Error("err ", err)
-	 }
-
-	 for _, file := range files {	
-	 	if file.IsDir() {
-			 continue
-	 	}
-		 //open file
-		filepath:= filepath.Join(dir.Name()  , file.Name())
-		fr, err := os.Open(filepath)
-		if err != nil {
-			log.Error("err ", err)
-	 	}
-	 	defer fr.Close()
- 
-	 	tarHeader := new(tar.Header)
-	 	tarHeader.Name = file.Name()
-	 	tarHeader.Size = file.Size()
-	 	tarHeader.Mode = int64(file.Mode())
-	 	tarHeader.ModTime = file.ModTime()
- 
-	 	err = tw.WriteHeader(tarHeader)
-	 	if err != nil {
-			log.Error("err ", err)
-	 	}
-	 	if _, err = io.Copy(tw, fr); err != nil {	 	
-			log.Error("err ", err)
-	 	}
-	 }
+	 //srcDirPath: /tmp/caracdnt_1
+	 walk(srcDirPath, srcDirPath, tw)
 	 log.Info("tar.gz ok")
+}
+
+
+func walk(path string, prefix string, tw *tar.Writer) error {
+	log.Info("path :" + path)
+
+	// get file
+    files, err := os.Open(path)
+    if err != nil {
+        return err
+    }
+    defer files.Close()
+	
+	file, err := files.Stat()
+    if err != nil {
+        return err
+    }
+	
+	tarHeader, err := tar.FileInfoHeader(file, "")
+    if err != nil {
+        return err
+    } 
+	
+	// remove Prefix path
+	tarHeader.Name = strings.TrimPrefix(path, prefix) 
+	log.Info("file name :" + tarHeader.Name)
+    if err = tw.WriteHeader(tarHeader); err != nil {
+        return err
+    }
+	
+	// if file is folder ,search son file systems
+	if file.IsDir() {                
+		log.Info("Is Directory")
+		// load dir files
+		sonFiles, err := ioutil.ReadDir(path)
+        if err != nil {
+            return err
+		}
+		for _, sonFile := range sonFiles{
+			// get filePath
+			sonFilePath := filepath.Join(path , sonFile.Name())
+            if err = walk(sonFilePath, prefix, tw); err != nil {
+                return err
+            }
+        }
+        return nil
+	}
+
+	// else , copy file into tar(tw)
+	log.Info("Is File")
+	_, err = io.Copy(tw, files) 
+	
+    return err
 }

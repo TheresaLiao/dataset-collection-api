@@ -8,7 +8,7 @@ import (
 	"github.com/op/go-logging"
 )
 
-// developer
+// Test db
 //const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
 
 // production

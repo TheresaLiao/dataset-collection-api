@@ -35,17 +35,29 @@ func url2DownloadSubtitle(c *gin.Context){
 	// srcDirPath : /tmp/subtitle_N.tar.gz
 	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
+	// check /tmp/subtitle_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
+		// check tmp/subtitle_N/viedo, than search & download
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
 			records := querySubtitle(subtitleTagIdStr,srcDirPathViedo)
-			getcsv(records, srcDirPathCsv)
+			if len(records) > 1 {
+				getcsv(records, srcDirPathCsv)
+			}else{
+				log.Info("row data empty")
+			}
 		}
-		// tar download folder
-		tarDir(srcDirPath,destFilePath)
+		// check /tmp/subtitle_N/viedo, than create tar file
+		if checkFileIsExit(srcDirPathViedo) {
+			// tar download folder
+			tarDir(srcDirPath,destFilePath)
+		}
 	}
-	// download file from server to client
-	respFile2Client(c,destFilePath)
+	// check /tmp/subtitle_N.tar.gz is exit?, if exit than retur to client
+	if checkFileIsExit(destFilePath) {
+		// download file from server to client
+		respFile2Client(c,destFilePath)
+	}
 }
 
 func url2DownloadCaracdnt(c *gin.Context){
@@ -61,17 +73,31 @@ func url2DownloadCaracdnt(c *gin.Context){
 	// srcDirPath : /tmp/caracdnt_N.tar.gz
 	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
+
+	// check /tmp/caracdnt_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
+		// check /tmp/caracdnt_N/viedo, than search & download
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
 			records := queryCaracdnt(carAccidentTagIdStr,srcDirPathViedo)
-			getcsv(records, srcDirPathCsv)
+			if len(records) > 1 {
+				getcsv(records, srcDirPathCsv)
+			}else{
+				log.Info("row data empty")
+			}
 		}
-		// tar download folder
-		tarDir(srcDirPath,destFilePath)
+		// check /tmp/caracdnt_N/viedo, than create tar file
+		if checkFileIsExit(srcDirPathViedo) {
+			// tar download folder
+			tarDir(srcDirPath,destFilePath)
+		}
 	}
-	// download file from server to client
-	respFile2Client(c,destFilePath)
+
+	// check /tmp/caracdnt_N.tar.gz is exit?, if exit than retur to client
+	if checkFileIsExit(destFilePath) {
+		// download file from server to client
+		respFile2Client(c,destFilePath)
+	}
 }
 
 func url2file(c *gin.Context){
@@ -129,8 +155,8 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	return y.VideoID
 }
 
-func querySubtitle(subtitleTagIdStr string,srcDirPath string)(records [][]string){
-	var records [][]string
+func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
+	records := [][]string{}
 	log.Info("subtitleTagIdStr : "+subtitleTagIdStr)
 	log.Info("srcDirPath : "+ srcDirPath)
 
@@ -164,10 +190,10 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(records [][]string
 	var video_id string
 	var youtube_id string
 	
-	//if (rows.length != 0){
-		row := []string{"id","youtube_id","video_id"}
-		records =  append(records, row)
-	//}
+
+	row := []string{"id","youtube_id","video_id"}
+	records =  append(records, row)
+	
 
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url, &youtube_id, &video_id); err {
@@ -181,11 +207,11 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(records [][]string
            	checkError(err)
         }
 	}
-	return records;
+	return records
 }
 
-func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(records [][]string){
-	var records [][]string
+func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string){
+	records := [][]string{}
 	log.Info("carAccidentTagIdStr : "+carAccidentTagIdStr)
 	log.Info("srcDirPath : "+ srcDirPath)
 
@@ -221,10 +247,10 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(records [][]str
 	var youtube_id string
 	var collision_time string
 
-	//if (rows.length != 0){
+	
 		row := []string{"id","youtube_id","collision_time"}
 		records =  append(records, row)
-	//}
+	
 
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url, &youtube_id, &collision_time); err {
@@ -238,6 +264,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(records [][]str
            	checkError(err)
         }
 	}
+	return records
 }
 
 func respFile2Client(c *gin.Context,destFilePath string){

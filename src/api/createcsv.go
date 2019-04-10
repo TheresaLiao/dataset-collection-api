@@ -6,6 +6,7 @@ import (
 )
 
 func getcsv(records [][]string, destFilePath string){
+    log.Info("getcsv")
     file, err := os.Create(destFilePath)
     if err != nil {
 		  log.Info("Cannot write to file", err)

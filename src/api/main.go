@@ -55,7 +55,6 @@ func main() {
 
 	//GET Default version
 	router.GET("/", check)
-	router.GET("/getcsv", check)
 	
 	// filter fun.
 	router.POST("/filterfun/detectImg", postDetectImgHandler)

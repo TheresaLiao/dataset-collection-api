@@ -8,7 +8,6 @@ import (
 	. "github.com/kkdai/youtube"
 	_ "github.com/lib/pq"
 	"database/sql"
-	"encoding/csv"
 )
 type YoutubeInfoVo struct {
 	FileName string `form:"filename" json:"filename" binding:"required"`
@@ -21,21 +20,7 @@ const TEMP_PATH = "temp"
 const VIEDO_PATH = "viedo"
 const FILE_EXTENTION_TAR = ".tar.gz"
 const FILE_EXTENTION_MP4 = ".mp4"
-
-func getcsv(c *gin.Context){
-
-	records := [][]string{
-		{"id","collision_time","url"},
-		{"1","Null","https://www.youtube.com/watch?v=B3ehIhlZVD8"},
-	}
-
-	w := csv.NewWriter(os.Stdout)
-	w.WriteAll(records) // calls Flush internally
-
-	if err := w.Error(); err != nil {
-		log.Info("error writing csv:", err)
-	}
-}
+const MAP_CSV_NAME = "map.csv"
 
 func url2DownloadSubtitle(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
@@ -45,13 +30,16 @@ func url2DownloadSubtitle(c *gin.Context){
 	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
 	// srcDirPathViedo : /tmp/subtitle_N/viedo
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	// srcDirPathCsv :/tmp/caracdnt_N/map.csv
+	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
 	// srcDirPath : /tmp/subtitle_N.tar.gz
 	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
 	if checkFileIsExit(destFilePath) == false{
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
-			querySubtitle(subtitleTagIdStr,srcDirPathViedo)
+			records := querySubtitle(subtitleTagIdStr,srcDirPathViedo)
+			getcsv(records, srcDirPathCsv)
 		}
 		// tar download folder
 		tarDir(srcDirPath,destFilePath)
@@ -68,13 +56,16 @@ func url2DownloadCaracdnt(c *gin.Context){
 	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
 	// srcDirPathViedo : /tmp/caracdnt_N/viedo
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	// srcDirPathCsv :/tmp/caracdnt_N/map.csv
+	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
 	// srcDirPath : /tmp/caracdnt_N.tar.gz
 	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
 	if checkFileIsExit(destFilePath) == false{
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
-			queryCaracdnt(carAccidentTagIdStr,srcDirPathViedo)
+			records := queryCaracdnt(carAccidentTagIdStr,srcDirPathViedo)
+			getcsv(records, srcDirPathCsv)
 		}
 		// tar download folder
 		tarDir(srcDirPath,destFilePath)
@@ -138,7 +129,8 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	return y.VideoID
 }
 
-func querySubtitle(subtitleTagIdStr string,srcDirPath string){
+func querySubtitle(subtitleTagIdStr string,srcDirPath string)(records [][]string){
+	var records [][]string
 	log.Info("subtitleTagIdStr : "+subtitleTagIdStr)
 	log.Info("srcDirPath : "+ srcDirPath)
 
@@ -156,28 +148,44 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ")  limit 3;"
+	sql_statement := " SELECT id, title, url, youtube_id, video_id "+
+					 " FROM subtitle "+
+					 " WHERE id in ( SELECT subtitle_id "+
+					 "				 FROM subtitle_tag_map "+
+					 "				 WHERE subtitle_tag_id =" + subtitleTagIdStr + ")  "+
+					 " ORDER BY id LIMIT 3;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
 
-	var id int
+	var id string
 	var title string
 	var url string
+	var video_id string
+	var youtube_id string
+	
+	//if (rows.length != 0){
+		row := []string{"id","youtube_id","video_id"}
+		records =  append(records, row)
+	//}
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title,  &url); err {
+		switch err := rows.Scan(&id, &title, &url, &youtube_id, &video_id); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:			
 			checkUrlAndDownload(url, srcDirPath)
+			row := []string{id,youtube_id,video_id}
+			records =  append(records, row)
         default:
            	checkError(err)
         }
 	}
+	return records;
 }
 
-func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
+func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(records [][]string){
+	var records [][]string
 	log.Info("carAccidentTagIdStr : "+carAccidentTagIdStr)
 	log.Info("srcDirPath : "+ srcDirPath)
 
@@ -195,21 +203,37 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ")  limit 3;"
+	sql_statement := " SELECT DISTINCT A.id, A.title, A.url, A.youtube_id, C.collision_time"+
+					 " FROM car_accident AS A,"+
+					 "      car_accident_tag_map AS B,"+
+					 "      car_accident_collision_time C"+
+					 " WHERE A.id = B.car_accident_id"+
+					 " AND A.id = C.car_accident_id"+
+					 " AND B.car_accident_tag_id =" + carAccidentTagIdStr + 
+					 " ORDER BY A.id LIMIT 10;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
 
-	var id int
+	var id string
 	var title string
 	var url string
+	var youtube_id string
+	var collision_time string
+
+	//if (rows.length != 0){
+		row := []string{"id","youtube_id","collision_time"}
+		records =  append(records, row)
+	//}
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &url); err {
+		switch err := rows.Scan(&id, &title, &url, &youtube_id, &collision_time); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
 			checkUrlAndDownload(url, srcDirPath)
+			row := []string{id,youtube_id,collision_time}
+			records =  append(records, row)
         default:
            	checkError(err)
         }
@@ -229,5 +253,3 @@ func respFile2Client(c *gin.Context,destFilePath string){
    	c.Header("Content-Type", "application/octet-stream")
    	c.File(destFilePath)
 }
-
-

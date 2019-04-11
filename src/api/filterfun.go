@@ -30,13 +30,14 @@ func url2DownloadSubtitle(c *gin.Context){
 	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
 	// srcDirPathViedo : /tmp/subtitle_N/viedo
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	// srcDirPathCsv :/tmp/caracdnt_N/map.csv
+	// srcDirPathCsv :/tmp/subtitle_N/map.csv
 	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
 	// srcDirPath : /tmp/subtitle_N.tar.gz
 	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
 
 	// check /tmp/subtitle_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
+		
 		// check tmp/subtitle_N/viedo, than search & download
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
@@ -47,6 +48,13 @@ func url2DownloadSubtitle(c *gin.Context){
 				log.Info("row data empty")
 			}
 		}
+
+		// // check /tmp/subtitle_N/map.csv,than create file
+		// if checkFileIsExit(srcDirPathCsv) {
+		// 	// create map file
+		// 	getcsv(records, srcDirPathCsv)
+		// }
+
 		// check /tmp/subtitle_N/viedo, than create tar file
 		if checkFileIsExit(srcDirPathViedo) {
 			// tar download folder
@@ -76,6 +84,7 @@ func url2DownloadCaracdnt(c *gin.Context){
 
 	// check /tmp/caracdnt_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
+		
 		// check /tmp/caracdnt_N/viedo, than search & download
 		if checkFileIsExit(srcDirPathViedo) == false{
 			// query data from sql, than download file
@@ -86,6 +95,13 @@ func url2DownloadCaracdnt(c *gin.Context){
 				log.Info("row data empty")
 			}
 		}
+
+		// // check /tmp/caracdnt_N/map.csv,than create file
+		// if checkFileIsExit(srcDirPathCsv) {
+		// 	// create map file
+		// 	getcsv(records, srcDirPathCsv)
+		// }
+
 		// check /tmp/caracdnt_N/viedo, than create tar file
 		if checkFileIsExit(srcDirPathViedo) {
 			// tar download folder
@@ -123,8 +139,9 @@ func url2file(c *gin.Context){
     }
 }
 
+
 func checkFileIsExit(filepath string)(resp bool){ 
-	log.Info("filepath : "+filepath)
+	log.Info("checkFileIsExit : "+filepath)
 
 	if _, err := os.Stat(filepath); err == nil {
 		log.Info(filepath + " is exeit")
@@ -179,7 +196,7 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 					 " WHERE id in ( SELECT subtitle_id "+
 					 "				 FROM subtitle_tag_map "+
 					 "				 WHERE subtitle_tag_id =" + subtitleTagIdStr + ")  "+
-					 " ORDER BY id LIMIT 3;"
+					 " ORDER BY id LIMIT 20;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
@@ -189,20 +206,18 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 	var url string
 	var video_id string
 	var youtube_id string
-	
 
-	row := []string{"id","youtube_id","video_id"}
-	records =  append(records, row)
+	item := []string{"id","youtube_id","srt_id"}
+	records =  append(records, item)
 	
-
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url, &youtube_id, &video_id); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:			
 			checkUrlAndDownload(url, srcDirPath)
-			row := []string{id,youtube_id,video_id}
-			records =  append(records, row)
+			item := []string{id,youtube_id+".mp4",video_id+".srt"}
+			records =  append(records, item)
         default:
            	checkError(err)
         }
@@ -236,7 +251,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 					 " WHERE A.id = B.car_accident_id"+
 					 " AND A.id = C.car_accident_id"+
 					 " AND B.car_accident_tag_id =" + carAccidentTagIdStr + 
-					 " ORDER BY A.id LIMIT 10;"
+					 " ORDER BY A.id LIMIT 50;"
     rows, err := db.Query(sql_statement)
     checkError(err)
 	defer rows.Close()
@@ -246,10 +261,9 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 	var url string
 	var youtube_id string
 	var collision_time string
-
 	
-		row := []string{"id","youtube_id","collision_time"}
-		records =  append(records, row)
+	item := []string{"id","youtube_id","collision_time"}
+	records =  append(records, item)
 	
 
 	for rows.Next() {
@@ -258,8 +272,8 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 			log.Info("No rows were returned")
 		case nil:
 			checkUrlAndDownload(url, srcDirPath)
-			row := []string{id,youtube_id,collision_time}
-			records =  append(records, row)
+			item := []string{id,youtube_id+".mp4",collision_time}
+			records =  append(records, item)
         default:
            	checkError(err)
         }
@@ -268,6 +282,7 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 }
 
 func respFile2Client(c *gin.Context,destFilePath string){
+	log.Info("start respFile2Client")
 	log.Info("destFilePath : "+ destFilePath)
 
 	// download file from server to client

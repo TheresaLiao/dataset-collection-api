@@ -30,6 +30,7 @@ func compressTar(c *gin.Context){
 }
 
 func tarDir(srcDirPath string, destFilePath string){
+	 log.Info("start tarDir")
 	 // file write
 	 fw, err := os.Create(destFilePath)
 	 if err != nil {

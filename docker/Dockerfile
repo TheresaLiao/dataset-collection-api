@@ -13,7 +13,7 @@ WORKDIR /app
 
 ADD /src/api/. /app
 
-RUN cd /app
+#RUN cd /app
 RUN go build -o main
 # RUN rm -rf /app/main.go
 

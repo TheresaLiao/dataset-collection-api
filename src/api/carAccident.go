@@ -81,15 +81,22 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 	}
 	log.Info("success connection")
 
-	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url FROM car_accident WHERE id in (SELECT car_accident_id FROM car_accident_tag_map WHERE car_accident_tag_id =" + carAccidentTagIdStr + ");"
-    rows, err := db.Query(sql_statement)
-    checkError(err)
+	sql_statement := `SELECT A.id, A.title, A.url 
+	 				  FROM car_accident as A 
+	 				  LEFT JOIN car_accident_tag_map AS B ON A.id = B.car_accident_id 
+	 				  WHERE B.car_accident_tag_id = $1`
+    rows, err := db.Query(sql_statement, carAccidentTagIdStr)
+    if err != nil {
+		//log.Fatal(err)
+		log.Info(err)
+	}
 	defer rows.Close()
 
-	var id int
-	var title string
-	var url string
+	var (
+		id   int
+		title string
+		url string
+	)
 
 	var carAccident CarAccident
 	var carAccidents []CarAccident
@@ -105,7 +112,7 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 			carAccident.Url = url
 			log.Info("Data row = (%d, %s, %s)\n", id, title, url)
 			carAccidents = append(carAccidents, carAccident)
-			   
+		
         default:
            checkError(err)
         }

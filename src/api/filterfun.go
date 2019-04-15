@@ -191,13 +191,12 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := " SELECT id, title, url, youtube_id, video_id "+
-					 " FROM subtitle "+
-					 " WHERE id in ( SELECT subtitle_id "+
-					 "				 FROM subtitle_tag_map "+
-					 "				 WHERE subtitle_tag_id =" + subtitleTagIdStr + ")  "+
-					 " ORDER BY id LIMIT 20;"
-    rows, err := db.Query(sql_statement)
+	sql_statement := `SELECT A.id, A.title, A.url, A.youtube_id, A.video_id 
+					  FROM subtitle AS A
+					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
+					  WHERE B.subtitle_tag_id = $1
+					  ORDER BY id`
+    rows, err := db.Query(sql_statement,subtitleTagIdStr)
     checkError(err)
 	defer rows.Close()
 
@@ -244,15 +243,13 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := " SELECT DISTINCT A.id, A.title, A.url, A.youtube_id, C.collision_time"+
-					 " FROM car_accident AS A,"+
-					 "      car_accident_tag_map AS B,"+
-					 "      car_accident_collision_time C"+
-					 " WHERE A.id = B.car_accident_id"+
-					 " AND A.id = C.car_accident_id"+
-					 " AND B.car_accident_tag_id =" + carAccidentTagIdStr + 
-					 " ORDER BY A.id LIMIT 50;"
-    rows, err := db.Query(sql_statement)
+	sql_statement := ` SELECT DISTINCT A.id, A.title, A.url, A.youtube_id, C.collision_time
+					   FROM car_accident AS A
+					   LEFT JOIN car_accident_tag_map AS B ON A.id = B.car_accident_id
+					   LEFT JOIN car_accident_collision_time C ON A.id = C.car_accident_id
+					   WHERE B.car_accident_tag_id = $1`
+
+    rows, err := db.Query(sql_statement, carAccidentTagIdStr)
     checkError(err)
 	defer rows.Close()
 

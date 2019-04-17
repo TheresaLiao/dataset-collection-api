@@ -5,7 +5,7 @@ import (
     "encoding/csv"
 )
 
-func getcsv(records [][]string, destFilePath string){
+func getcsv(header []string,records [][]string, destFilePath string){
     log.Info("getcsv")
     file, err := os.Create(destFilePath)
     if err != nil {
@@ -16,8 +16,12 @@ func getcsv(records [][]string, destFilePath string){
     writer := csv.NewWriter(file)
     defer writer.Flush()
 
+    writer.Write(header) 
+    if err := writer.Error(); err != nil {
+		log.Info("error Write csv:", err)
+	}
     writer.WriteAll(records) 
     if err := writer.Error(); err != nil {
-		log.Info("error writing csv:", err)
+		log.Info("error WriteAll csv:", err)
 	}
 }

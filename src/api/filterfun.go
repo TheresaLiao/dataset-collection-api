@@ -37,23 +37,27 @@ func url2DownloadSubtitle(c *gin.Context){
 
 	// check /tmp/subtitle_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
-		
-		// check tmp/subtitle_N/viedo, than search & download
-		if checkFileIsExit(srcDirPathViedo) == false{
-			// query data from sql, than download file
-			records := querySubtitle(subtitleTagIdStr,srcDirPathViedo)
-			if len(records) > 1 {
-				getcsv(records, srcDirPathCsv)
-			}else{
-				log.Info("row data empty")
-			}
-		}
+		// query data from sql
+		records := querySubtitle(subtitleTagIdStr)
+		if len(records) == 0 {
+			log.Info("row data empty")
+		}else{
 
-		// // check /tmp/subtitle_N/map.csv,than create file
-		// if checkFileIsExit(srcDirPathCsv) {
-		// 	// create map file
-		// 	getcsv(records, srcDirPathCsv)
-		// }
+			createDirectory(srcDirPath)
+			
+			// check /tmp/subtitle_N/map.csv, than search & download
+			if checkFileIsExit(srcDirPathCsv) == false{
+				item := []string{"id","youtube_id","srt_id","url"}
+				records =  append(records, item)
+				getcsv(item,records, srcDirPathCsv)	
+			}
+			// check /tmp/subtitle_N/viedo, than search & download
+			if checkFileIsExit(srcDirPathViedo) == false{
+				for _, item := range records {
+					checkUrlAndDownload(item[3], srcDirPathViedo)
+				}
+			}
+		} 		
 
 		// check /tmp/subtitle_N/viedo, than create tar file
 		if checkFileIsExit(srcDirPathViedo) {
@@ -84,23 +88,28 @@ func url2DownloadCaracdnt(c *gin.Context){
 
 	// check /tmp/caracdnt_N.tar.gz is exit
 	if checkFileIsExit(destFilePath) == false{
-		
-		// check /tmp/caracdnt_N/viedo, than search & download
-		if checkFileIsExit(srcDirPathViedo) == false{
-			// query data from sql, than download file
-			records := queryCaracdnt(carAccidentTagIdStr,srcDirPathViedo)
-			if len(records) > 1 {
-				getcsv(records, srcDirPathCsv)
-			}else{
-				log.Info("row data empty")
+		// query data from sql
+		records := queryCaracdnt(carAccidentTagIdStr)
+		if len(records) == 0 {
+			log.Info("row data empty")
+		}else{
+
+			createDirectory(srcDirPath)
+
+			// check /tmp/caracdnt_N/map.csv, than search & download
+			if checkFileIsExit(srcDirPathCsv) == false{
+				item := []string{"id","youtube_id","collision_time","url"}
+				records =  append(records, item)
+				getcsv(item,records, srcDirPathCsv)	
+			}
+
+			// check /tmp/caracdnt_N/viedo, than search & download
+			if checkFileIsExit(srcDirPathViedo) == false{
+				for _, item := range records {
+					checkUrlAndDownload(item[3], srcDirPathViedo)
+				}
 			}
 		}
-
-		// // check /tmp/caracdnt_N/map.csv,than create file
-		// if checkFileIsExit(srcDirPathCsv) {
-		// 	// create map file
-		// 	getcsv(records, srcDirPathCsv)
-		// }
 
 		// check /tmp/caracdnt_N/viedo, than create tar file
 		if checkFileIsExit(srcDirPathViedo) {
@@ -172,10 +181,9 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	return y.VideoID
 }
 
-func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
+func querySubtitle(subtitleTagIdStr string)(resp [][]string){
 	records := [][]string{}
 	log.Info("subtitleTagIdStr : "+subtitleTagIdStr)
-	log.Info("srcDirPath : "+ srcDirPath)
 
 	// connect db
 	db, err := sql.Open("postgres",connStr)
@@ -195,7 +203,7 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 					  FROM subtitle AS A
 					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
 					  WHERE B.subtitle_tag_id = $1
-					  ORDER BY id`
+					  ORDER BY id LIMIT 3`
     rows, err := db.Query(sql_statement,subtitleTagIdStr)
     checkError(err)
 	defer rows.Close()
@@ -205,17 +213,13 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 	var url string
 	var video_id string
 	var youtube_id string
-
-	item := []string{"id","youtube_id","srt_id"}
-	records =  append(records, item)
 	
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url, &youtube_id, &video_id); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:			
-			checkUrlAndDownload(url, srcDirPath)
-			item := []string{id,youtube_id+".mp4",video_id+".srt"}
+			item := []string{id,youtube_id+".mp4",video_id+".srt",url}
 			records =  append(records, item)
         default:
            	checkError(err)
@@ -224,10 +228,10 @@ func querySubtitle(subtitleTagIdStr string,srcDirPath string)(resp [][]string){
 	return records
 }
 
-func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string){
+func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
 	records := [][]string{}
 	log.Info("carAccidentTagIdStr : "+carAccidentTagIdStr)
-	log.Info("srcDirPath : "+ srcDirPath)
+	
 
 	// connect db
 	db, err := sql.Open("postgres",connStr)
@@ -247,7 +251,8 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 					   FROM car_accident AS A
 					   LEFT JOIN car_accident_tag_map AS B ON A.id = B.car_accident_id
 					   LEFT JOIN car_accident_collision_time C ON A.id = C.car_accident_id
-					   WHERE B.car_accident_tag_id = $1`
+					   WHERE B.car_accident_tag_id = $1
+					   ORDER BY id LIMIT 3`
 
     rows, err := db.Query(sql_statement, carAccidentTagIdStr)
     checkError(err)
@@ -259,17 +264,12 @@ func queryCaracdnt(carAccidentTagIdStr string,srcDirPath string)(resp [][]string
 	var youtube_id string
 	var collision_time string
 	
-	item := []string{"id","youtube_id","collision_time"}
-	records =  append(records, item)
-	
-
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url, &youtube_id, &collision_time); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
-			checkUrlAndDownload(url, srcDirPath)
-			item := []string{id,youtube_id+".mp4",collision_time}
+			item := []string{id,youtube_id+".mp4",collision_time,url}
 			records =  append(records, item)
         default:
            	checkError(err)
@@ -291,4 +291,21 @@ func respFile2Client(c *gin.Context,destFilePath string){
    	c.Header("Content-Disposition", "attachment; destFilePath=" + destFilePath )
    	c.Header("Content-Type", "application/octet-stream")
    	c.File(destFilePath)
+}
+
+func createDirectory(dirName string) bool {
+	src, err := os.Stat(dirName)
+	if os.IsNotExist(err) {
+		errDir := os.MkdirAll(dirName, 0755)
+		if errDir != nil {
+			log.Info(errDir)
+		}
+		return true
+	}
+
+	if src.Mode().IsRegular() {
+		log.Info(dirName, "already exist as a file!")
+		return false
+	}
+	return false
 }

@@ -47,9 +47,8 @@ func url2DownloadSubtitle(c *gin.Context){
 			
 			// check /tmp/subtitle_N/map.csv, than search & download
 			if checkFileIsExit(srcDirPathCsv) == false{
-				item := []string{"id","youtube_id","srt_id","url"}
-				records =  append(records, item)
-				getcsv(item,records, srcDirPathCsv)	
+				title := []string{"id","youtube_id","srt_id","url"}
+				getcsv(title,records, srcDirPathCsv)	
 			}
 			// check /tmp/subtitle_N/viedo, than search & download
 			if checkFileIsExit(srcDirPathViedo) == false{
@@ -98,9 +97,8 @@ func url2DownloadCaracdnt(c *gin.Context){
 
 			// check /tmp/caracdnt_N/map.csv, than search & download
 			if checkFileIsExit(srcDirPathCsv) == false{
-				item := []string{"id","youtube_id","collision_time","url"}
-				records =  append(records, item)
-				getcsv(item,records, srcDirPathCsv)	
+				title := []string{"id","youtube_id","collision_time","url"}
+				getcsv(title,records, srcDirPathCsv)	
 			}
 
 			// check /tmp/caracdnt_N/viedo, than search & download
@@ -203,7 +201,7 @@ func querySubtitle(subtitleTagIdStr string)(resp [][]string){
 					  FROM subtitle AS A
 					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
 					  WHERE B.subtitle_tag_id = $1
-					  ORDER BY id LIMIT 3`
+					  ORDER BY id LIMIT 30`
     rows, err := db.Query(sql_statement,subtitleTagIdStr)
     checkError(err)
 	defer rows.Close()
@@ -252,7 +250,7 @@ func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
 					   LEFT JOIN car_accident_tag_map AS B ON A.id = B.car_accident_id
 					   LEFT JOIN car_accident_collision_time C ON A.id = C.car_accident_id
 					   WHERE B.car_accident_tag_id = $1
-					   ORDER BY id LIMIT 3`
+					   ORDER BY id`
 
     rows, err := db.Query(sql_statement, carAccidentTagIdStr)
     checkError(err)

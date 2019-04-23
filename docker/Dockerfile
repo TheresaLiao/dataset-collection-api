@@ -7,6 +7,8 @@ RUN go get github.com/op/go-logging
 RUN go get -u github.com/gin-gonic/gin
 RUN go get github.com/lib/pq
 RUN go get github.com/kkdai/youtube
+RUN go get -u github.com/jinzhu/gorm
+
 
 RUN mkdir -p /app
 WORKDIR /app

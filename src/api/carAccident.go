@@ -5,25 +5,48 @@ import (
 	"github.com/gin-gonic/gin"
 	"database/sql"
 	_ "github.com/lib/pq"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-type CarAccident struct {
+
+type CarAccidentVo struct {
 	Id  int `json:"id"`
 	Title string `json:"title"`
 	Url string `json:"url"`
-//	CopyRight string `json:"copyRight"`
-//	AccidentTime string `json:"accidentTime"`
-//	CarType string `json:"carType"`
-//	DayTime string `json:"dayTime"`
-//	Collision string `json:"collision"`
 }
 
-type CarAccidentTag struct {
+type CarAccidentTagVo struct {
 	Id  int `json:"id"`
 	TagName string `json:"tagName"`
 }
 
+type CarAccidentTag struct {}
+
 func queryCarAccidentTagHandler(c *gin.Context){
+		db, err := gorm.Open("postgres", connStr)
+		if err != nil {
+			log.Info("failed to connect database")
+		}
+		log.Info("Connection connection")
+
+		db.SingularTable(true)
+	
+		carAccidentTags :=  &CarAccidentTag{}
+		db.Debug().Find(&carAccidentTags)
+		for i := range carAccidentTags {
+			fmt.Println(i, &carAccidentTags[i])
+			v := &carAccidentTags[i]
+			CarAccidentTag[v.PackageName] = &carAccidentTag[i]
+		}
+
+		c.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": "apiserver ready and Summary Connection ",
+		})
+}
+
+func test(c *gin.Context){
 	// connect db
 	db, err := sql.Open("postgres",connStr)
 	if err != nil{
@@ -46,23 +69,22 @@ func queryCarAccidentTagHandler(c *gin.Context){
 	//parse raw data into json 
 	var id int
 	var tagName string
-	var carAccidentTag CarAccidentTag
-	var carAccidentTags []CarAccidentTag
+	var carAccidentTagVo CarAccidentTagVo
+	var carAccidentTagVos []CarAccidentTagVo
 
 	for rows.Next() {
 		switch err := rows.Scan(&id, &tagName); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
-			carAccidentTag.Id = id
-			carAccidentTag.TagName = tagName
-			log.Info("Data row = (%d, %s)\n", id, tagName)
-			carAccidentTags = append(carAccidentTags, carAccidentTag)
+			carAccidentTagVo.Id = id
+			carAccidentTagVo.TagName = tagName
+			carAccidentTagVos = append(carAccidentTagVos, carAccidentTagVo)
         default:
            checkError(err)
         }
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidentTags})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidentTagVos})
 }
 
 func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
@@ -98,8 +120,8 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 		url string
 	)
 
-	var carAccident CarAccident
-	var carAccidents []CarAccident
+	var carAccidentVo CarAccidentVo
+	var carAccidentVos []CarAccidentVo
 
 	for rows.Next() {
 		switch err := rows.Scan(&id, &title, &url); err {
@@ -107,15 +129,15 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
 			log.Info("No rows were returned")
 		case nil:
 			log.Info("Data row = (%d, %s, %d)\n", id, title, url)
-			carAccident.Id = id
-			carAccident.Title = title
-			carAccident.Url = url
+			carAccidentVo.Id = id
+			carAccidentVo.Title = title
+			carAccidentVo.Url = url
 			log.Info("Data row = (%d, %s, %s)\n", id, title, url)
-			carAccidents = append(carAccidents, carAccident)
+			carAccidentVos = append(carAccidentVos, carAccidentVo)
 		
         default:
            checkError(err)
         }
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidents})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidentVos})
 }

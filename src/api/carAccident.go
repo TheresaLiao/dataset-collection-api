@@ -84,6 +84,8 @@ func test(c *gin.Context){
            checkError(err)
         }
 	}
+
+  c.Header("Access-Control-Allow-Origin", "*") 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidentTagVos})
 }
 
@@ -139,5 +141,7 @@ func queryCarAccidentByCarAccidentTagIdHandler(c *gin.Context){
            checkError(err)
         }
 	}
+  c.Header("Access-Control-Allow-Origin", "*") 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": carAccidentVos})
+
 }

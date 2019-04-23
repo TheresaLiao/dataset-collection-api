@@ -283,7 +283,8 @@ func respFile2Client(c *gin.Context,destFilePath string){
 	// download file from server to client
 	if !strings.HasPrefix(filepath.Clean(destFilePath), DOWNLOADS_PATH) {
 		c.String(403, "Look like you attacking me")
-   	}   
+	   }   
+	c.Header("Access-Control-Allow-Origin", "*") 
    	c.Header("Content-Description", "File Transfer")
    	c.Header("Content-Transfer-Encoding", "binary")
    	c.Header("Content-Disposition", "attachment; destFilePath=" + destFilePath )

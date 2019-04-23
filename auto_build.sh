@@ -1,5 +1,5 @@
 docker stop task5-4
-docker rm task5-4
+docker rm -f task5-4
 docker build -t golang_1.11.2:1.0.0 -f docker/Dockerfile .
 docker run --name task5-4 \
            -ti -d \
@@ -8,4 +8,5 @@ docker run --name task5-4 \
            -v /home/ccma/dataset_doc:/tmp \
            golang_1.11.2:1.0.0
 
-#docker rmi -f $(docker images | grep "<none>")
+docker rmi -f $(docker images | grep "<none>")
+sudo docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm

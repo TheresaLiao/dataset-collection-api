@@ -78,8 +78,11 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := "SELECT id, title, url  FROM subtitle WHERE id in (SELECT subtitle_id FROM subtitle_tag_map WHERE subtitle_tag_id =" + subtitleTagIdStr + ");"
-    rows, err := db.Query(sql_statement)
+	sql_statement := `SELECT A.id, A.title, A.url  
+					  FROM subtitle AS A
+					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
+					  WHERE B.subtitle_tag_id = $1`
+	rows, err := db.Query(sql_statement, subtitleTagIdStr)
     checkError(err)
 	defer rows.Close()
 

@@ -56,18 +56,26 @@ func main() {
 	//GET Default version
 	router.GET("/", check)
 	
-	// filter fun.
+	// get data list by filter parameter
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
 	router.POST("/filterfun/youtubeUrl", url2file)
+
 	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
 	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
 
-	// dataset
+	// dataset for download
+	// dataset subtitle
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)
 	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
 
+	// dataset car accident
 	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
 	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
+
+	//dataset car type
+	router.GET("/filterfun/queryTrainTwOrgUrl",url2DownloadTrainTwOrg)
+	//router.GET("/dataset/trans",queryTransHandler)
+	//router.GET("/dataset/trans/:transType",queryTransByTranstypeHandler)
 
 
 	router.Run(":80")

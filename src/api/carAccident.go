@@ -32,13 +32,13 @@ func queryCarAccidentTagHandler(c *gin.Context){
 
 		db.SingularTable(true)
 	
-		carAccidentTags :=  &CarAccidentTag{}
-		db.Debug().Find(&carAccidentTags)
-		for i := range carAccidentTags {
-			fmt.Println(i, &carAccidentTags[i])
-			v := &carAccidentTags[i]
-			CarAccidentTag[v.PackageName] = &carAccidentTag[i]
-		}
+		// carAccidentTags :=  &CarAccidentTag{}
+		// db.Debug().Find(&carAccidentTags)
+		// for i := range carAccidentTags {
+		// 	fmt.Println(i, &carAccidentTags[i])
+		// 	v := &carAccidentTags[i]
+		// 	CarAccidentTag[v.PackageName] = &carAccidentTag[i]
+		// }
 
 		c.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,

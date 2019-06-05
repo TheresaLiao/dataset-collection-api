@@ -16,11 +16,25 @@ type YoutubeInfoVo struct {
 const DOWNLOADS_PATH = "/tmp"
 const SUBTITLE_PATH = "subtitle_"
 const CARACDNT_PATH = "caracdnt_"
+const TRAINTWORG_PATH = "traintworg"
 const TEMP_PATH = "temp"
 const VIEDO_PATH = "viedo"
 const FILE_EXTENTION_TAR = ".tar.gz"
 const FILE_EXTENTION_MP4 = ".mp4"
 const MAP_CSV_NAME = "map.csv"
+
+func url2DownloadTrainTwOrg(c *gin.Context){
+	// srcDirPath : /tmp/traintworg
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
+	// srcDirPathViedo : /tmp/traintworg/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+
+	records := queryTrainTwOrgUrl()
+	for _, item := range records {
+		log.Info(item)
+		checkUrlAndDownload(item, srcDirPathViedo)
+	}
+}
 
 func url2DownloadSubtitle(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
@@ -42,9 +56,7 @@ func url2DownloadSubtitle(c *gin.Context){
 		if len(records) == 0 {
 			log.Info("row data empty")
 		}else{
-
 			createDirectory(srcDirPath)
-			
 			// check /tmp/subtitle_N/map.csv, than search & download
 			if checkFileIsExit(srcDirPathCsv) == false{
 				title := []string{"id","youtube_id","srt_id","url"}
@@ -269,6 +281,44 @@ func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
 		case nil:
 			item := []string{id,youtube_id+".mp4",collision_time,url}
 			records =  append(records, item)
+        default:
+           	checkError(err)
+        }
+	}
+	return records
+}
+
+func queryTrainTwOrgUrl()([]string){
+	records := []string{}
+
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	// select table :subtitle_tag ,all rows data
+	sql_statement := ` SELECT "URL" FROM train_tw_org`
+
+	rows, err := db.Query(sql_statement)
+    checkError(err)
+	defer rows.Close()
+
+	var url string
+
+	for rows.Next() {
+		switch err := rows.Scan(&url); err {
+        case sql.ErrNoRows:
+			log.Info("No rows were returned")
+		case nil:
+			records =  append(records, url)
         default:
            	checkError(err)
         }

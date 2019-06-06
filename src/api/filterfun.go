@@ -29,11 +29,22 @@ func url2DownloadTrainTwOrg(c *gin.Context){
 	// srcDirPathViedo : /tmp/traintworg/viedo
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
 
-	records := queryTrainTwOrgUrl()
-	for _, item := range records {
+	records := [][]string()
+
+	urls := queryTrainTwOrgUrl()
+	for _, url := range urls {
 		log.Info(item)
-		checkUrlAndDownload(item, srcDirPathViedo)
-	}
+		youtubeId := checkUrlAndDownload(url, srcDirPathViedo)
+		item := []string{youtubeId,url}
+		records =  append(records, item)
+	} 
+	
+	// insert youtubeId into train_tw_org where url = srcDirPathViedo
+	updateTrainTwOrgUrlByUrl(records)
+
+	// TO-DO trigger training data
+	// TO-DO read file and mapping viedoId.txt and jpg file into train_tw_tag
+	
 }
 
 func url2DownloadSubtitle(c *gin.Context){
@@ -288,6 +299,35 @@ func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
 	return records
 }
 
+
+// records(youtube_id,url)
+func updateTrainTwOrgUrlByUrl(records [][]string){
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	for _, item := range records {
+		// insert youtub_id into 
+		sql_statement := ` UPDATE train_tw_org SET youtube_id =$1 WHERE URL =$2 `
+		_, err := db.Exec(sql_statement, item[0], item[1])
+		checkError(err)
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+  		panic(err)
+	}
+	log.Info("update data count:" + count)
+}
+
 func queryTrainTwOrgUrl()([]string){
 	records := []string{}
 
@@ -305,7 +345,7 @@ func queryTrainTwOrgUrl()([]string){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := ` SELECT "URL" FROM train_tw_org`
+	sql_statement := ` SELECT "URL" FROM train_tw_org WHERE "youtube_id" != NULL`
 
 	rows, err := db.Query(sql_statement)
     checkError(err)

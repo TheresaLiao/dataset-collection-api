@@ -9,8 +9,8 @@ import (
 )
 
 // Test db
-const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
-//const connStr = "postgres://admin:12345@Test_MyPostgres:5432/Test_db?sslmode=disable"
+//const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
+const connStr = "postgres://admin:12345@Test_MyPostgres:5432/Test_db?sslmode=disable"
 
 // production
 //const connStr = "postgres://admin:12345@MyPostgres:5432/database_project?sslmode=disable"
@@ -73,7 +73,8 @@ func main() {
 	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
 
 	//dataset car type
-	router.GET("/filterfun/queryTrainTwOrgUrl",url2DownloadTrainTwOrg)
+	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
+	router.GET("/filterfun/parsingTrainingResult",parsingTrainingResult)
 	//router.GET("/dataset/trans",queryTransHandler)
 	//router.GET("/dataset/trans/:transType",queryTransByTranstypeHandler)
 

@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"net/http"
+	"os/exec"
 )
 type YoutubeInfoVo struct {
 	FileName string `form:"filename" json:"filename" binding:"required"`
@@ -40,6 +41,27 @@ const VIEDO_PATH = "video"
 const FILE_EXTENTION_TAR = ".tar.gz"
 const FILE_EXTENTION_MP4 = ".mp4"
 const MAP_CSV_NAME = "map.csv"
+const YOLO_URL = "http://task5-4-1:8080/yolo_coco_image"
+const YOLO_FOLDER = "_yolo"
+
+func getYoloImg(c *gin.Context){
+	youtubeIdStr := c.Param("youtubeId")
+	filenameStr := c.Param("filename")
+	
+	// srcDirPath : /tmp/traintworg
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
+	// srcDirPathViedo : /tmp/traintworg/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	srcFilePathViedo := filepath.Join(srcDirPathViedo, youtubeIdStr + YOLO_FOLDER, filenameStr)
+	
+	content, err := ioutil.ReadFile(srcFilePathViedo)
+	if err != nil{
+		log.Info(err)
+	}
+
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
+}
 
 func url2DownloadTrainTwOrg(c *gin.Context){
 	log.Info("url2DownloadTrainTwOrg")
@@ -50,9 +72,8 @@ func url2DownloadTrainTwOrg(c *gin.Context){
 	log.Info("srcDirPath:"+srcDirPath)
 	log.Info("srcDirPathViedo:"+srcDirPathViedo)
 
-
 	urls := queryTrainTwOrgUrl()
-	youtubeIds := []string{}
+
 	for _, url := range urls {
 		log.Info(url)
 		youtubeId := checkUrlAndDownload(url, srcDirPathViedo)
@@ -60,19 +81,19 @@ func url2DownloadTrainTwOrg(c *gin.Context){
 		// insert youtubeId into train_tw_org where url = srcDirPathViedo
 		log.Info(youtubeId)
 		updateTrainTwOrgUrlByUrl(youtubeId,url)
-		youtubeIds =  append(youtubeIds, youtubeId)
 	
-		// // TO-DO trigger training data
-		// // curl -d '{"videonames":"./traintworg/video/Rf9MxTLfdik.mp4", "dirname": "./traintworg/video/Rf9MxTLfdik"}' \
-		// // -X POST http://localhost:8080/yolo_coco_image
-		// urlStr := "http://task5-4-1:8080/yolo_coco_image"
-		// videonames := "./traintworg/video/"+youtubeId+".mp4"
-		// dirname := "./traintworg/video/"+youtubeId
-		// triggerYoloApi(urlStr,videonames,dirname)
+		// TO-DO trigger training data
+		// curl -d '{"videonames":"./traintworg/video/Rf9MxTLfdik.mp4", "dirname": "./traintworg/video/Rf9MxTLfdik"}' \
+		// -X POST http://localhost:8080/yolo_coco_image
+		// videonames := "./traintworg/video/" + youtubeId + ".mp4"
+		// dirname := "./traintworg/video/" + youtubeId + YOLO_FOLDER
+		videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+".mp4")
+		dirname := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+YOLO_FOLDER)
+
+		
+		triggerYoloApi(YOLO_URL,videonames,dirname)
 	}
 }
-
-
 
 func parsingTrainingResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_tw_tag
@@ -85,7 +106,7 @@ func parsingTrainingResult(c *gin.Context){
 		log.Info(youtubeId)
 		// parding json file 
 		// /tmp/traintworg/video/XwJa0bhThzI/XwJa0bhThzI.txt
-		youtubeIdfile := filepath.Join(srcDirPath, youtubeId, youtubeId+".txt")
+		youtubeIdfile := filepath.Join(srcDirPath, youtubeId+YOLO_FOLDER, youtubeId+".txt")
 		
 		byteValue , _ := ioutil.ReadFile(youtubeIdfile)
 		strValue := string(byteValue)
@@ -324,27 +345,39 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	log.Info("url : "+url)
 	log.Info("srcDirPath : "+ srcDirPath)
 
+	// // download file to localpath
+	// filename := filepath.Join(srcDirPath, y.VideoID + FILE_EXTENTION_MP4)
+	// log.Info("filename : " + filename)
+	// if err := y.StartDownload(filename); err != nil {
+	// 	log.Info("Error StartDownload")
+	// 	log.Error("err ", err)
+	// }
+	// log.Info("VideoID = "+ y.VideoID)
+
+	var youtubeId string
 	// check url
 	y := NewYoutube(true)
 	if err := y.DecodeURL(url); err != nil {
 		log.Error("err ", err)
+		youtubeId = ""
+	}else{
+		youtubeId = y.VideoID
 	}
 
-	for _, v := range y.StreamList {
-		url := v["url"] + "&signature=" + v["sig"]
-		log.Info("Download url=", url)
-		log.Info("Download to file=", destFile)
-	}
 
-	// download file to localpath
-	filename := filepath.Join(srcDirPath, y.VideoID + FILE_EXTENTION_MP4)
-	log.Info("filename : " + filename)
-	if err := y.StartDownload(filename); err != nil {
-		log.Info("Error StartDownload")
+	log.Info("annie -o "+srcDirPath+" -O "+y.VideoID+" "+url)
+	cmd := exec.Command("annie","-o",srcDirPath,"-O",y.VideoID,url)
+	err := cmd.Run()
+	if err != nil {
 		log.Error("err ", err)
 	}
-	log.Info("VideoID = "+ y.VideoID)
-	return y.VideoID
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Info("cmd.Run() failed with %s\n", err)
+	// }
+	// log.Info("combined out:\n%s\n", string(out))
+
+	return youtubeId
 }
 
 func querySubtitle(subtitleTagIdStr string)(resp [][]string){
@@ -496,9 +529,9 @@ func queryTrainTwOrgUrl()([]string){
 
 	// select table :subtitle_tag ,all rows data
 	sql_statement := ` SELECT "URL" FROM train_tw_org 
-					   WHERE "youtube_id" = 'NULL'  
-					   AND "CarAccidentID" = '3203'
+					   WHERE "youtube_id" = 'NULL'
 					   ORDER BY "URL"`
+					   //  AND "CarAccidentID" = '3203'
 
 	rows, err := db.Query(sql_statement)
     checkError(err)
@@ -543,7 +576,6 @@ func queryTrainTwOrgUrlFilterByTag()([]string){
 						   SELECT DISTINCT "youtube_id" 
 						   FROM train_tw_tag 
 						)
-						AND "youtube_id" = '6H4FCpOUeP4'
 					    ORDER BY "youtube_id"`
 
 	rows, err := db.Query(sql_statement)

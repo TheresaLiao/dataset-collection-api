@@ -75,6 +75,10 @@ func main() {
 	//dataset car type
 	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
 	router.GET("/filterfun/parsingTrainingResult",parsingTrainingResult)
+	router.GET("/dataset/queryTrainTwOrg",queryTrainTwOrgHandler)
+	router.GET("/dataset/queryTrainTwTag/:youtubeId",queryTrainTwTagByYoutubeIdHandler)
+	router.GET("/dataset/getYoloImg/:youtubeId/:filename",getYoloImg)
+
 	//router.GET("/dataset/trans",queryTransHandler)
 	//router.GET("/dataset/trans/:transType",queryTransByTranstypeHandler)
 

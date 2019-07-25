@@ -72,12 +72,19 @@ func main() {
 	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
 	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
 
-	//dataset car type
+	// dataset car type
 	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
-	router.GET("/filterfun/parsingTrainingResult",parsingTrainingResult)
 	router.GET("/dataset/queryTrainTwOrg",queryTrainTwOrgHandler)
-	router.GET("/dataset/queryTrainTwTag/:youtubeId",queryTrainTwTagByYoutubeIdHandler)
-	router.GET("/dataset/getYoloImg/:youtubeId/:filename",getYoloImg)
+
+	// get yolo resualt
+	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult)
+	router.GET("/dataset/queryTrainYoloTag/:youtubeId",queryTrainYoloTagByYoutubeIdHandler)
+	router.GET("/filterfun/getYoloImg/:youtubeId/:filename",getYoloImg)
+
+	// get lpr resualt
+	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult)
+	router.GET("/dataset/queryTrainLprTag/:youtubeId",queryTrainLprTagByYoutubeIdHandler)
+	router.GET("/filterfun/getLprImg/:youtubeId/:filename",getLprImg)
 
 	//router.GET("/dataset/trans",queryTransHandler)
 	//router.GET("/dataset/trans/:transType",queryTransByTranstypeHandler)

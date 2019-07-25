@@ -66,9 +66,9 @@ func queryTrainTwOrgHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": trainTwOrgVos})
 }
 
-func queryTrainTwTagByYoutubeIdHandler(c *gin.Context){
+func queryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
+	log.Info("queryTrainYoloTagByYoutubeIdHandler")
 	youtubeIdStr := c.Param("youtubeId")
-	log.Info("queryTrainTwTagHandler")
 
 	// connect db
 	db, err := sql.Open("postgres",connStr)
@@ -84,7 +84,55 @@ func queryTrainTwTagByYoutubeIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	sql_statement := ` SELECT "youtube_id", "object", "filename" 
-					   FROM train_tw_tag 
+					   FROM train_yolo_tag 
+					   WHERE "youtube_id" = $1 `
+
+	rows, err := db.Query(sql_statement,youtubeIdStr)
+    checkError(err)
+	defer rows.Close()
+
+	var youtube_id string
+	var object string
+	var filename string
+	var trainTwTagVo TrainTwTagVo
+	var trainTwTagVos []TrainTwTagVo
+
+	for rows.Next() {
+		switch err := rows.Scan(&youtube_id, &object, &filename); err {
+        case sql.ErrNoRows:
+			log.Info("No rows were returned")
+		case nil:			
+			trainTwTagVo.YoutubeId = youtube_id
+			trainTwTagVo.Object = object
+			trainTwTagVo.Filename = filename
+			trainTwTagVos = append(trainTwTagVos, trainTwTagVo)
+        default:
+           	checkError(err)
+        }
+	}
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": trainTwTagVos})
+}
+
+func queryTrainLprTagByYoutubeIdHandler(c *gin.Context){
+	log.Info("queryTrainLprTagByYoutubeIdHandler")
+	youtubeIdStr := c.Param("youtubeId")
+
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	sql_statement := ` SELECT "youtube_id", "plateNumber", "filename" 
+					   FROM train_lpr_tag 
 					   WHERE "youtube_id" = $1 `
 
 	rows, err := db.Query(sql_statement,youtubeIdStr)

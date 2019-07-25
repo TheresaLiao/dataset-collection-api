@@ -1,6 +1,6 @@
-container_name="task5-4-2"
+container_name="task5-4-3"
 image_name="golang_1.11.2:dev"
-port1="50123"
+port1="50013"
 
 
 docker stop $container_name

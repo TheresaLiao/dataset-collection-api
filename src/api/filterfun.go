@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"github.com/gin-gonic/gin"
-	. "github.com/kkdai/youtube"
+	//. "github.com/kkdai/youtube"
 	_ "github.com/lib/pq"
 	"database/sql"
 	"context"
@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"net/http"
 	"os/exec"
+	"regexp"
 )
 type YoutubeInfoVo struct {
 	FileName string `form:"filename" json:"filename" binding:"required"`
@@ -57,6 +58,7 @@ const FILE_EXTENTION_MP4 = ".mp4"
 const MAP_CSV_NAME = "map.csv"
 const YOLO_URL = "http://task5-4-1:8080/yolo_coco_image"
 const YOLO_FOLDER = "_yolo"
+const YOLO_DEID_LPR_URL = "http://task5-4-5:8080/yolo_lpr_image"
 const LPR_URL = "http://task5-4-2:8080/yolo_lpr_image"
 const LPR_FOLDER = "_lpr"
 
@@ -159,6 +161,10 @@ func parsingTrainYoloResult(c *gin.Context){
 			if len(item.Tag) > 0 {
 				for cntTag  := range item.Tag {
 					if isTraffic(item.Tag[cntTag].ObjectTypes[0]){
+						// filename = ./traintworg/video/XwJa0bhThzI_yolo/res_00000032.jpg
+						filename := filepath.Join(".", TRAINTWORG_PATH,  VIEDO_PATH, youtubeId+YOLO_FOLDER, item.Filename)
+						triggerDeIdentification(YOLO_DEID_LPR_URL,filename)
+						
 						// write into db 
 						insertTrainYoloTagItem(youtubeId,
 						item.Tag[cntTag].ObjectPicX,item.Tag[cntTag].ObjectPicY,
@@ -190,15 +196,19 @@ func parsingTrainLprResult(c *gin.Context){
 		// filter item
 		strItems := strings.Split(strValue,"\n")
 		for cntItem := range strItems {
+			if(strItems[cntItem] == ""){
+				log.Info(strItems[cntItem] )
+				break
+			}
 			var item LprItem 
 			var jsonBlob = []byte(strItems[cntItem])
     		err := json.Unmarshal(jsonBlob, &item )
 			if err != nil {
-        		log.Error("error:", err, strItems[cntItem])
+				log.Error("error:", err, strItems[cntItem])
+				break
 			}
 			if len(item.Tag) > 0 {
 				for cntTag  := range item.Tag {
-					
 					// write into db 
 					insertTrainLprTagItem(youtubeId,
 					item.Tag[cntTag].ObjectPicX,item.Tag[cntTag].ObjectPicY,
@@ -209,6 +219,32 @@ func parsingTrainLprResult(c *gin.Context){
 			}
 		}
 	}
+}
+
+func triggerDeIdentification (urlStr string, filename string) {
+	log.Info("start triggerYoloApi")
+ 
+    post := "{\"filename\":\"" + filename + "\"}"
+	log.Info(urlStr, "post", post)
+
+    var jsonStr = []byte(post)
+    log.Info("jsonStr", urlStr)
+    log.Info("new_str", bytes.NewBuffer(jsonStr))
+
+    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+	log.Info("response Status:", resp.Status)
+	log.Info("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+	log.Info("response Body:", string(body))
 }
 
 func triggerYoloApi(urlStr string, videonames string, dirname string) {
@@ -493,21 +529,20 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	// }
 	// log.Info("VideoID = "+ y.VideoID)
 
-	var youtubeId string
+	// var youtubeId string
 	// check url
-	y := NewYoutube(true)
-	if err := y.DecodeURL(url); err != nil {
-		log.Error("err ", err)
-		youtubeId = ""
-	}else{
-		youtubeId = y.VideoID
-	}
+	// y := NewYoutube(true)
+	// if err := y.DecodeURL(url); err != nil {
+	// 	log.Info("err:", err)
+	// 	youtubeId = ""
+	// }else{
+	// 	youtubeId = y.VideoID
+	// }
+	youtubeId := findVideoID(url)
 
-
-	log.Info("annie -o "+srcDirPath+" -O "+y.VideoID+" "+url)
-	cmd := exec.Command("annie","-o",srcDirPath,"-O",y.VideoID,url)
-	err := cmd.Run()
-	if err != nil {
+	log.Info("annie -o "+srcDirPath+" -O "+youtubeId+" "+url)
+	cmd := exec.Command("annie","-o",srcDirPath,"-O",youtubeId,url)
+	if err := cmd.Run(); err != nil {
 		log.Error("err ", err)
 	}
 	// out, err := cmd.CombinedOutput()
@@ -517,6 +552,33 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	// log.Info("combined out:\n%s\n", string(out))
 
 	return youtubeId
+}
+
+func findVideoID(url string)(youtubeId string) {
+	videoID := url
+	if strings.Contains(videoID, "youtu") || strings.ContainsAny(videoID, "\"?&/<%=") {
+		reList := []*regexp.Regexp{
+			regexp.MustCompile(`(?:v|embed|watch\?v)(?:=|/)([^"&?/=%]{11})`),
+			regexp.MustCompile(`(?:=|/)([^"&?/=%]{11})`),
+			regexp.MustCompile(`([^"&?/=%]{11})`),
+		}
+		for _, re := range reList {
+			if isMatch := re.MatchString(videoID); isMatch {
+				subs := re.FindStringSubmatch(videoID)
+				videoID = subs[1]
+			}
+		}
+	}
+	log.Info("Found video id: "+ videoID)
+	return videoID
+
+	if strings.ContainsAny(videoID, "?&/<%=") {
+		log.Error("invalid characters in video id")
+	}
+	if len(videoID) < 10 {
+		log.Error("the video id must be at least 10 characters long")
+	}
+	return ""
 }
 
 func querySubtitle(subtitleTagIdStr string)(resp [][]string){

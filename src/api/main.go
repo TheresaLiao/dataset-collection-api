@@ -10,7 +10,7 @@ import (
 
 // Test db
 //const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
-const connStr = "postgres://admin:12345@Test_MyPostgres:5432/Test_db?sslmode=disable"
+const connStr = "postgres://admin:12345@Test_Postgres:5432/Test_db?sslmode=disable"
 
 // production
 //const connStr = "postgres://admin:12345@MyPostgres:5432/database_project?sslmode=disable"
@@ -26,6 +26,9 @@ var whiteip5 = "210.61.209.194"
 var whiteip6 = "210.61.209.195"
 var whiteip7 = "210.61.209.196"
 var whiteip8 = "210.61.209.197"
+
+// Div-N Vincent
+var whiteip9 = "140.96.116.61"
 
 var cntConnection = 0
 
@@ -50,6 +53,7 @@ func main() {
 	whitelist[whiteip6] = true
 	whitelist[whiteip7] = true
 	whitelist[whiteip8] = true
+	whitelist[whiteip9] = true
 
 	//router.Use(IPWhiteList(whitelist))
 

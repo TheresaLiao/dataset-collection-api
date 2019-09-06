@@ -1,5 +1,5 @@
-container_name="task5-4-4"
-image_name="golang_1.11.2:dev"
+container_name="task5-4-4-TH"
+image_name="task5-4:1.0.0-TH"
 port1="50014"
 
 

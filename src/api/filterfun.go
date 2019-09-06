@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 	"github.com/gin-gonic/gin"
-	//. "github.com/kkdai/youtube"
 	_ "github.com/lib/pq"
 	"database/sql"
 	"context"
@@ -56,10 +55,10 @@ const VIEDO_PATH = "video"
 const FILE_EXTENTION_TAR = ".tar.gz"
 const FILE_EXTENTION_MP4 = ".mp4"
 const MAP_CSV_NAME = "map.csv"
-const YOLO_URL = "http://task5-4-1:8080/yolo_coco_image"
+const YOLO_URL = "http://task5-4-1-TH:8080/yolo_coco_image"
 const YOLO_FOLDER = "_yolo"
-const YOLO_DEID_LPR_URL = "http://task5-4-5:8080/yolo_lpr_image"
-const LPR_URL = "http://task5-4-2:8080/yolo_lpr_image"
+const YOLO_DEID_LPR_URL = "http://task5-4-3-TH:8080/yolo_lpr_image"
+const LPR_URL = "http://task5-4-2-TH:8080/yolo_lpr_image"
 const LPR_FOLDER = "_lpr"
 
 func getLprImg(c *gin.Context){
@@ -119,11 +118,6 @@ func url2DownloadTrainTwOrg(c *gin.Context){
 		log.Info(youtubeId)
 		updateTrainTwOrgUrlByUrl(youtubeId,url)
 	
-		// TO-DO trigger training data
-		// curl -d '{"videonames":"./traintworg/video/Rf9MxTLfdik.mp4", "dirname": "./traintworg/video/Rf9MxTLfdik"}' \
-		// -X POST http://localhost:8080/yolo_coco_image
-		// videonames := "./traintworg/video/" + youtubeId + ".mp4"
-		// dirname := "./traintworg/video/" + youtubeId + YOLO_FOLDER
 		videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+".mp4")
 		dirnameYolo := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+YOLO_FOLDER)
 		dirnameLpr := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+LPR_FOLDER)
@@ -153,6 +147,7 @@ func parsingTrainYoloResult(c *gin.Context){
 		strItems := strings.Split(strValue,"\n")
 		for cntItem := range strItems {
 			var item YoloItem 
+			
 			var jsonBlob = []byte(strItems[cntItem])
     		err := json.Unmarshal(jsonBlob, &item )
 			if err != nil {
@@ -161,16 +156,27 @@ func parsingTrainYoloResult(c *gin.Context){
 			if len(item.Tag) > 0 {
 				for cntTag  := range item.Tag {
 					if isTraffic(item.Tag[cntTag].ObjectTypes[0]){
-						// filename = ./traintworg/video/XwJa0bhThzI_yolo/res_00000032.jpg
-						filename := filepath.Join(".", TRAINTWORG_PATH,  VIEDO_PATH, youtubeId+YOLO_FOLDER, item.Filename)
-						triggerDeIdentification(YOLO_DEID_LPR_URL,filename)
-						
+						if(cntTag == 0){
+							// filename = ./traintworg/video/XwJa0bhThzI_yolo/res_00000032.jpg
+							filename := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+YOLO_FOLDER, item.Filename)
+							triggerDeIdentification(YOLO_DEID_LPR_URL, filename)
+						}
+
 						// write into db 
 						insertTrainYoloTagItem(youtubeId,
 						item.Tag[cntTag].ObjectPicX,item.Tag[cntTag].ObjectPicY,
 						item.Tag[cntTag].ObjectWidth,item.Tag[cntTag].ObjectHeight,
 						item.Tag[cntTag].ObjectTypes[0],item.Filename)	
 					}
+				}
+			}else{
+				// delete file without tag info
+				filename := filepath.Join(srcDirPath, youtubeId+YOLO_FOLDER, item.Filename)
+				log.Info("remove file "+ filename)
+				err := os.Remove(filename) 
+				if err != nil {
+					log.Info("file remove Error!")
+					log.Error("error:", err)
 				}
 			}
 		}
@@ -215,6 +221,15 @@ func parsingTrainLprResult(c *gin.Context){
 					item.Tag[cntTag].ObjectWidth,item.Tag[cntTag].ObjectHeight,
 					item.Tag[cntTag].PlateNumber,item.Filename)	
 					
+				}
+			}else{
+				// delete file without tag info
+				filename := filepath.Join(srcDirPath, youtubeId+LPR_FOLDER, item.Filename)
+				log.Info("remove file "+ filename)
+				err := os.Remove(filename) 
+				if err != nil {
+					log.Info("file remove Error!")
+					log.Error("error:", err)
 				}
 			}
 		}
@@ -309,11 +324,11 @@ func isTraffic(objectTypes string)(resp bool){
 	return false
 }
 
-// records(youtube_id, x_num, y_num, weigtht, hight, object,filename)
+// records(youtube_id, x_num, y_num, width, height, object,filename)
 func insertTrainYoloTagItem( youtube_id string, x_num int, y_num int,
-						   weigtht int,hight int, object string,
-						   filename string){
-	log.Info("insertTrainYoloTagItem")
+	width int,height int, object string,
+						   	filename string){
+	
 	// connect db
 	db, err := sql.Open("postgres",connStr)
 	if err != nil{
@@ -329,11 +344,11 @@ func insertTrainYoloTagItem( youtube_id string, x_num int, y_num int,
 	// update columns youtube_id
 	ctx := context.Background()
 	sql_statement := ` INSERT INTO 
-	train_yolo_tag("youtube_id","x_num","y_num","weigtht","hight","object","filename") 
+	train_yolo_tag("youtube_id","x_num","y_num","width","height","object","filename") 
 	VALUES ($1 ,$2 ,$3 ,$4 ,$5 ,$6 ,$7 )`
 
 	result, err := db.ExecContext(ctx, sql_statement, youtube_id, x_num, y_num,
-		weigtht, hight, object,filename)
+		width, height, object,filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -346,11 +361,10 @@ func insertTrainYoloTagItem( youtube_id string, x_num int, y_num int,
 	}
 }
 
-// records(youtube_id, x_num, y_num, weigtht, hight, plateNumber, filename)
+// records(youtube_id, x_num, y_num, width, height, plateNumber, filename)
 func insertTrainLprTagItem( youtube_id string, x_num int, y_num int,
-						   weigtht int,hight int, plateNumber string,
+	width int,height int, plateNumber string,
 						   filename string){
-	log.Info("insertTrainLprTagItem")
 	// connect db
 	db, err := sql.Open("postgres",connStr)
 	if err != nil{
@@ -366,11 +380,11 @@ func insertTrainLprTagItem( youtube_id string, x_num int, y_num int,
 	// update columns youtube_id
 	ctx := context.Background()
 	sql_statement := ` INSERT INTO 
-	train_lpr_tag("youtube_id","x_num","y_num","weigtht","hight","plateNumber","filename") 
+	train_lpr_tag("youtube_id","x_num","y_num","width","height","plateNumber","filename") 
 	VALUES ($1 ,$2 ,$3 ,$4 ,$5 ,$6 ,$7 )`
 
 	result, err := db.ExecContext(ctx, sql_statement, youtube_id, x_num, y_num,
-		weigtht, hight, plateNumber, filename)
+		width, height, plateNumber, filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -519,25 +533,6 @@ func checkFileIsExit(filepath string)(resp bool){
 func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	log.Info("url : "+url)
 	log.Info("srcDirPath : "+ srcDirPath)
-
-	// // download file to localpath
-	// filename := filepath.Join(srcDirPath, y.VideoID + FILE_EXTENTION_MP4)
-	// log.Info("filename : " + filename)
-	// if err := y.StartDownload(filename); err != nil {
-	// 	log.Info("Error StartDownload")
-	// 	log.Error("err ", err)
-	// }
-	// log.Info("VideoID = "+ y.VideoID)
-
-	// var youtubeId string
-	// check url
-	// y := NewYoutube(true)
-	// if err := y.DecodeURL(url); err != nil {
-	// 	log.Info("err:", err)
-	// 	youtubeId = ""
-	// }else{
-	// 	youtubeId = y.VideoID
-	// }
 	youtubeId := findVideoID(url)
 
 	log.Info("annie -o "+srcDirPath+" -O "+youtubeId+" "+url)
@@ -545,11 +540,6 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	if err := cmd.Run(); err != nil {
 		log.Error("err ", err)
 	}
-	// out, err := cmd.CombinedOutput()
-	// if err != nil {
-	// 	log.Info("cmd.Run() failed with %s\n", err)
-	// }
-	// log.Info("combined out:\n%s\n", string(out))
 
 	return youtubeId
 }

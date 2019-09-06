@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-var detectImgUrl = "http://task5-1:50008/detection"
+var detectImgUrl = "http://task5-4-8-TH:8080/yolo_coco_image"
 
 /*
  * input binary 

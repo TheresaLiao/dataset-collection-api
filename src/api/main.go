@@ -62,37 +62,34 @@ func main() {
 	
 	// get data list by filter parameter
 	router.POST("/filterfun/detectImg", postDetectImgHandler)
-	router.POST("/filterfun/youtubeUrl", url2file)
-
-	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
-	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
+	router.POST("/filterfun/youtubeUrl", url2file)	
 
 	// dataset for download
 	// dataset subtitle
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)
 	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
+	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
 
 	// dataset car accident
 	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
 	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
+	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
 
 	// dataset car type
-	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
 	router.GET("/dataset/queryTrainTwOrg",queryTrainTwOrgHandler)
+	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
 
 	// get yolo resualt
-	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult)
 	router.GET("/dataset/queryTrainYoloTag/:youtubeId",queryTrainYoloTagByYoutubeIdHandler)
+	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult)
 	router.GET("/filterfun/getYoloImg/:youtubeId/:filename",getYoloImg)
+	//router.GET("/filterfun/getYoloTar/:youtubeId",getYoloTar)
 
 	// get lpr resualt
-	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult)
 	router.GET("/dataset/queryTrainLprTag/:youtubeId",queryTrainLprTagByYoutubeIdHandler)
+	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult)
 	router.GET("/filterfun/getLprImg/:youtubeId/:filename",getLprImg)
-
-	//router.GET("/dataset/trans",queryTransHandler)
-	//router.GET("/dataset/trans/:transType",queryTransByTranstypeHandler)
-
+	//router.GET("/filterfun/getLprTar/:youtubeId",getLprTar)
 
 	router.Run(":80")
 }

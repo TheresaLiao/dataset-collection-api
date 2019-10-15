@@ -123,9 +123,30 @@ func url2DownloadTrainTwOrg(c *gin.Context){
 		dirnameLpr := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+LPR_FOLDER)
 		
 		triggerYoloApi(YOLO_URL,videonames,dirnameYolo)
-		triggerLprApi(LPR_URL,videonames,dirnameLpr)
+		triggerLprApi(LPR_URL,videonames,dirnameLpr) 
 	}
 }
+
+func trainTwOrg2TrainYolo(c *gin.Context){
+	log.Info("trainTwOrg2TrainYolo")
+	youtubeIdStr := c.Param("youtubeId")
+
+	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+".mp4")
+	dirnameYolo := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+YOLO_FOLDER)
+	
+	triggerYoloApi(YOLO_URL,videonames,dirnameYolo)
+}
+
+func trainTwOrg2TrainLpr(c *gin.Context){
+	log.Info("trainTwOrg2TrainLpr")
+	youtubeIdStr := c.Param("youtubeId")
+	
+	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+".mp4")
+	dirnameLpr := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+LPR_FOLDER)
+	
+	triggerLprApi(LPR_URL,videonames,dirnameLpr)
+}
+
 
 func parsingTrainYoloResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_yolo_tag

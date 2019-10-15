@@ -65,7 +65,7 @@ func main() {
 	router.POST("/filterfun/youtubeUrl", url2file)	
 
 	// dataset for download
-	// dataset subtitle
+	// dataset subtitle 
 	router.GET("/dataset/subtitle", querySubtitleTagHandler)
 	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
 	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
@@ -83,13 +83,13 @@ func main() {
 	router.GET("/dataset/queryTrainYoloTag/:youtubeId",queryTrainYoloTagByYoutubeIdHandler)
 	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult)
 	router.GET("/filterfun/getYoloImg/:youtubeId/:filename",getYoloImg)
-	//router.GET("/filterfun/getYoloTar/:youtubeId",getYoloTar)
+	router.GET("/filterfun/trainTwOrg2TrainYolo/:youtubeId",trainTwOrg2TrainYolo)
 
 	// get lpr resualt
 	router.GET("/dataset/queryTrainLprTag/:youtubeId",queryTrainLprTagByYoutubeIdHandler)
 	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult)
 	router.GET("/filterfun/getLprImg/:youtubeId/:filename",getLprImg)
-	//router.GET("/filterfun/getLprTar/:youtubeId",getLprTar)
+	router.GET("/filterfun/trainTwOrg2TrainLpr/:youtubeId",trainTwOrg2TrainLpr)
 
 	router.Run(":80")
 }

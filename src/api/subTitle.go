@@ -7,17 +7,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type SubtitleTag struct {
-	Id  int `json:"id"`
-	TagName string `json:"tagName"`
-}
-
-type Subtitle struct {
-	Id  int `json:"id"`
-	Title string `json:"title"`
-	Url string `json:"url"`
-}
-
 func querySubtitleTagHandler(c *gin.Context){
 	// connect db
 	db, err := sql.Open("postgres",connStr)
@@ -41,24 +30,30 @@ func querySubtitleTagHandler(c *gin.Context){
 	//parse raw data into json 
 	var id int
 	var tagName string
+	var thumbnail string
 	var subtitleTag SubtitleTag
 	var subtitleTags []SubtitleTag
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &tagName); err {
+		switch err := rows.Scan(&id, &tagName, &thumbnail); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
 			subtitleTag.Id = id
 			subtitleTag.TagName = tagName
-			log.Info("Data row = (%d, %s)\n", id, tagName)
+			subtitleTag.Thumbnail = thumbnail
 			subtitleTags = append(subtitleTags, subtitleTag)
         default:
            checkError(err)
         }
 	}
+
+	var dataSetVo SubtitleTagDataSetVo
+	dataSetVo.Desc = "SubTitle dataset"
+	dataSetVo.Data =  subtitleTags
+
 	c.Header("Access-Control-Allow-Origin", "*") 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": subtitleTags})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK,  "message": dataSetVo})
 }
 
 func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
@@ -78,7 +73,7 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := `SELECT A.id, A.title, A.url  
+	sql_statement := `SELECT A.id, A.title, A.url, A.thumbnail
 					  FROM subtitle AS A
 					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
 					  WHERE B.subtitle_tag_id = $1`
@@ -89,20 +84,20 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	var id int
 	var title string
 	var url string
+	var thumbnail string
 
 	var subtitle Subtitle
 	var subtitles []Subtitle
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &url); err {
+		switch err := rows.Scan(&id, &title, &url, &thumbnail); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
-			log.Info("Data row = (%d, %s, %d)\n", id, title, url)
 			subtitle.Id = id
 			subtitle.Title = title
 			subtitle.Url = url
-			log.Info("Data row = (%d, %s, %s)\n", id, title, url)
+			subtitle.Thumbnail = thumbnail
 			subtitles = append(subtitles, subtitle)
 			   
         default:

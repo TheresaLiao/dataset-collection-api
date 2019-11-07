@@ -15,37 +15,7 @@ import (
 	"os/exec"
 	"regexp"
 )
-type YoutubeInfoVo struct {
-	FileName string `form:"filename" json:"filename" binding:"required"`
-	Url string `form:"url" json:"url" binding:"required"`
-}
 
-type LprItem struct {
-    Tag 		[]LprTag 	`json:"tag"`
-    Filename 	string 	`json:"filename"`
-}
-type LprTag struct {
-    Confidences  []int    `json:"confidences"`
-    ObjectHeight int      `json:"objectHeight"`
-    ObjectPicY   int      `json:"objectPicY"`
-    ObjectTypes  []string `json:"objectTypes"`
-    ObjectWidth  int      `json:"objectWidth"`
-	ObjectPicX   int      `json:"objectPicX"`
-	PlateNumber  string   `json:"plateNumber"`
-}
-
-type YoloItem struct {
-    Tag 		[]YoloTag 	`json:"tag"`
-    Filename 	string 	`json:"filename"`
-}
-type YoloTag struct {
-    Confidences  []int    `json:"confidences"`
-    ObjectHeight int      `json:"objectHeight"`
-    ObjectPicY   int      `json:"objectPicY"`
-    ObjectTypes  []string `json:"objectTypes"`
-    ObjectWidth  int      `json:"objectWidth"`
-    ObjectPicX   int      `json:"objectPicX"`
-}
 
 const DOWNLOADS_PATH = "/tmp"
 const SUBTITLE_PATH = "subtitle_"
@@ -458,7 +428,7 @@ func url2DownloadSubtitle(c *gin.Context){
 			tarDir(srcDirPath,destFilePath)
 		}
 	}
-	// check /tmp/subtitle_N.tar.gz is exit?, if exit than retur to client
+	// check /tmp/subtitle_N.tar.gz is exit?, if exit than return to client
 	if checkFileIsExit(destFilePath) {
 		// download file from server to client
 		respFile2Client(c,destFilePath)
@@ -517,6 +487,16 @@ func url2DownloadCaracdnt(c *gin.Context){
 	}
 }
 
+func url2DownloadCarType(c *gin.Context){
+	log.Info("start url2DownloadCarType")
+	youtubeIdStr := c.Param("youtubeId")
+
+	// srcDirPath: /tmp/traintworg/video
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH, VIEDO_PATH)
+	destFilePath := filepath.Join(srcDirPath, youtubeIdStr + FILE_EXTENTION_MP4)
+	respFile2Client(c,destFilePath)
+}
+
 func url2file(c *gin.Context){
 	//dowmload file from url to server 
 	var youtubeInfoVo YoutubeInfoVo
@@ -551,6 +531,7 @@ func checkFileIsExit(filepath string)(resp bool){
 	return false
 }
 
+// https://github.com/iawia002/annie
 func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	log.Info("url : "+url)
 	log.Info("srcDirPath : "+ srcDirPath)

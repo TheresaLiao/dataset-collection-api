@@ -11,14 +11,14 @@ import (
 
 
 type CarAccidentVo struct {
-	Id  int `json:"id"`
-	Title string `json:"title"`
-	Url string `json:"url"`
+	Id  int				`json:"id"`
+	Title string	`json:"title"`
+	Url string		`json:"url"`
 }
 
 type CarAccidentTagVo struct {
-	Id  int `json:"id"`
-	TagName string `json:"tagName"`
+	Id  int					`json:"id"`
+	TagName string	`json:"tagName"`
 }
 
 type CarAccidentTag struct {}

@@ -5,25 +5,21 @@ import (
 	_ "github.com/lib/pq"
 	"database/sql"
 	"net/http"
+	"net/url"
+	"time"
+	"io/ioutil"
+	"encoding/json"
 )
 
-type TrainTwOrgVo struct {
-	CarAccidentID  string `json:"carAccidentID"`
-	Title string `json:"title"`
-	YoutubeId string `json:"youtubeId"`
-	Url string `json:"url"`
-}
-
-type TrainTwTagVo struct {
-	Id int `json:"id"`
-	YoutubeId  string `json:"youtubeId"`
-	Object string `json:object"`
-	Filename string `json:"filename"`
-	XNum int `json:"x_num"`
-	YNum int `json:"y_num"`
-	Width int `json:"width"`
-	Height int `json:"height"`
-}
+const RFC3339 = "2006-01-02T15:04:05Z07:00"
+const SEARCH_URL = "https://www.googleapis.com/youtube/v3/search"
+const VIEDOS_URL = "https://www.googleapis.com/youtube/v3/videos"
+const YOUTUBE_API_KEY = "AIzaSyCcEHKC8RDbGlwY3LFEbhukJE9hXe4oboM" 
+const SEARCH_KEYWORD1 = "擦撞 行車" 
+const SEARCH_KEYWORD2 = "碰撞 監視器" 
+const SEARCH_KEYWORD3 = "行車紀錄 事故" 
+const SEARCH_KEYWORD4 = "車禍 行車紀錄" 
+const SEARCH_KEYWORD5 = "車禍 行車視角" 
 
 func queryTrainTwOrgHandler(c *gin.Context){
 	log.Info("queryTrainTwOrgHandler")
@@ -41,7 +37,7 @@ func queryTrainTwOrgHandler(c *gin.Context){
 	}
 	log.Info("success connection")
 
-	sql_statement := ` SELECT "CarAccidentID", "title", "youtube_id" ,"URL"
+	sql_statement := ` SELECT "CarAccidentID", "title", "youtube_id" ,"URL","thumbnail"
 					   FROM train_tw_org 
 					   WHERE "youtube_id" != 'NULL'
 					   ORDER BY "youtube_id"`
@@ -54,11 +50,12 @@ func queryTrainTwOrgHandler(c *gin.Context){
 	var title string
 	var youtube_id string
 	var url string
+	var thumbnail string
 	var trainTwOrgVo TrainTwOrgVo
 	var trainTwOrgVos []TrainTwOrgVo
 
 	for rows.Next() {
-		switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url); err {
+		switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url, &thumbnail); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:			
@@ -66,13 +63,20 @@ func queryTrainTwOrgHandler(c *gin.Context){
 			trainTwOrgVo.Title = title
 			trainTwOrgVo.YoutubeId = youtube_id
 			trainTwOrgVo.Url = url
+			trainTwOrgVo.Thumbnail = thumbnail
 			trainTwOrgVos = append(trainTwOrgVos, trainTwOrgVo)
         default:
            	checkError(err)
         }
 	}
+
+	var dataSetVo TrainTwOrgDataSetVo
+	dataSetVo.Title = "Car Type dataset"
+	dataSetVo.Desc = "Include all type of car video"
+	dataSetVo.Data =  trainTwOrgVos
+
 	c.Header("Access-Control-Allow-Origin", "*") 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": trainTwOrgVos})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": dataSetVo})
 }
 
 func queryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
@@ -193,4 +197,191 @@ func queryTrainLprTagByYoutubeIdHandler(c *gin.Context){
 	}
 	c.Header("Access-Control-Allow-Origin", "*") 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": trainTwTagVos})
+}
+
+func getSearchByKeyWord(c *gin.Context){
+	log.Info("getSearchByKeyWord")
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	getYoutubeListSearchByKeyWord(SEARCH_KEYWORD1)
+	getYoutubeListSearchByKeyWord(SEARCH_KEYWORD2)
+	getYoutubeListSearchByKeyWord(SEARCH_KEYWORD3)
+	getYoutubeListSearchByKeyWord(SEARCH_KEYWORD4)
+	getYoutubeListSearchByKeyWord(SEARCH_KEYWORD5)
+
+	//insert into sql
+	// sql_statement := ` INSERT INTO "train_tw_org" (
+	// 					"CarAccidentID", 
+	// 					"title" ,
+	// 					"URL" ,
+	// 					"youtube_id")
+	// 				   VALUES ( ? ,? ,? ,"NULL")` 
+
+	// result, err := db.Exec(sql_statement,,,)
+}
+
+func getYoutubeInfoById(c *gin.Context){
+	log.Info("getYoutubeInfoById")
+
+	youtubeIdStr := c.Param("youtubeId")
+	pic := getYoutubeInfoByIdhttp(youtubeIdStr)
+	log.Info(pic)
+
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": pic})
+}
+
+func getTrainTwOrgThumbnail(c *gin.Context){
+	log.Info("queryTrainTwOrgHandler")
+
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	// Search all youtube_id
+	sql_statement := ` SELECT DISTINCT "youtube_id"
+					   FROM train_tw_org 
+					   WHERE "youtube_id" != 'NULL'
+					   AND "thumbnail" = ''
+					   ORDER BY "youtube_id"`
+
+	rows, err := db.Query(sql_statement)
+    checkError(err)
+	defer rows.Close()
+
+	var youtubeId string
+	var youtubeIds []string
+	for rows.Next() {
+		switch err := rows.Scan(&youtubeId); err {
+        case sql.ErrNoRows:
+			log.Info("No rows were returned")
+		case nil:
+			youtubeIds = append(youtubeIds, youtubeId)
+        default:
+           	checkError(err)
+        }
+	}
+
+	// Get Thumbnail by youtubeId
+	thumbnailAry := make(map[string]string)
+	for _, youtubrId := range youtubeIds {
+		thumbnail := getYoutubeInfoByIdhttp(youtubrId)
+		thumbnailAry[youtubrId] = thumbnail
+	}
+
+	// Insert thumbnail for each youtubeId
+	for _, youtubrId := range youtubeIds {
+		
+		if thumbnailAry[youtubrId] != ""{
+			log.Info(thumbnailAry[youtubrId])
+			sql_statement2 := `UPDATE "train_tw_org"
+			SET "thumbnail" = $1
+			WHERE youtube_id = $2` 
+	
+
+			log.Info(thumbnailAry[youtubrId])
+			_, err = db.Exec(sql_statement2,thumbnailAry[youtubrId] ,youtubrId)
+			if err != nil {
+				log.Info(err)
+			}
+		}
+	}
+
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": thumbnailAry})
+}
+
+func getYoutubeInfoByIdhttp(videoId string)(pic string){
+	baseUrl, err := url.Parse(VIEDOS_URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	params := url.Values{}
+	params.Add("key", YOUTUBE_API_KEY)
+	params.Add("part", "snippet")
+	params.Add("id", videoId)
+	baseUrl.RawQuery = params.Encode()
+
+	// get responce
+	resp, err := http.Get(baseUrl.String())  
+	if err != nil {  
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()  
+	body, err := ioutil.ReadAll(resp.Body)  
+	if err != nil {
+		log.Fatal(err)
+	}  
+	respJson := string(body)	
+
+	// parsing json to struct
+	videoVo := VideoVo{}
+	json.Unmarshal([]byte(respJson), &videoVo)
+	
+	var respStr = ""
+	if len(videoVo.Items) > 0{
+		respStr = videoVo.Items[0].Snippet.Thumbnails.Medium.URL
+	}
+	return respStr
+}
+
+func getYoutubeListSearchByKeyWord(searchKeyWord string){
+
+	now := time.Now()
+    weekago := now.AddDate(0, 0, -7)
+	strdate := weekago.Format(RFC3339)
+	enddate := now.Format(RFC3339)
+
+	baseUrl, err := url.Parse(SEARCH_URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	params := url.Values{}
+	params.Add("key", YOUTUBE_API_KEY)
+	params.Add("part", "snippet")
+	params.Add("q", searchKeyWord)
+	params.Add("publishedAfter", strdate)
+	params.Add("publishedBefore", enddate)
+	baseUrl.RawQuery = params.Encode()
+
+	// get responce
+	resp, err := http.Get(baseUrl.String())  
+	if err != nil {  
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()  
+	body, err := ioutil.ReadAll(resp.Body)  
+	if err != nil {
+		log.Fatal(err)
+	}  
+	respJson := string(body)	
+	
+	// parsing json to struct
+	searchVo := SearchVo{}
+	json.Unmarshal([]byte(respJson), &searchVo)
+
+	for _, item := range searchVo.Items {
+		log.Info(item.Snippet.Title)
+		log.Info(item.ID.VideoID)
+	}
 }

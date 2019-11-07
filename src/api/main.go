@@ -61,35 +61,45 @@ func main() {
 	router.GET("/", check)
 	
 	// get data list by filter parameter
-	router.POST("/filterfun/detectImg", postDetectImgHandler)
-	router.POST("/filterfun/youtubeUrl", url2file)	
+	router.POST("/filterfun/detectImg", postDetectImgHandler) //detectImage.go
+	router.POST("/filterfun/youtubeUrl", url2file) //filterfun.go
+	router.GET("/filterfun/youtubeInfo/:youtubeId", getYoutubeInfoById) //carType.go
 
-	// dataset for download
+
+	//========================= dataset list =========================
+	// summary dataset list
+	router.GET("/dataset/list",getDatasetList) //summary.go
+
 	// dataset subtitle 
-	router.GET("/dataset/subtitle", querySubtitleTagHandler)
-	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
-	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
+	router.GET("/dataset/subtitle", querySubtitleTagHandler) //subTitle.go
+	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler) //subTitle.go
+	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle) //filterfun.go
 
 	// dataset car accident
-	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
-	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
-	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
+	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler) //carAccident.go
+	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler) //carAccident.go
 
 	// dataset car type
-	router.GET("/dataset/queryTrainTwOrg",queryTrainTwOrgHandler)
-	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg)
+	router.GET("/dataset/queryTrainTwOrg",queryTrainTwOrgHandler) //carType.go
+	router.GET("/dataset/crawlThhisWeeklist",url2DownloadTrainTwOrg) //filterfun.go
+	router.GET("/filterfun/youtubeUrl/getSearchByKeyWord", getSearchByKeyWord) //carType.go
+	router.GET("/dataset/queryTrainTwOrg/getThumbnail", getTrainTwOrgThumbnail) //carType.go
+	router.GET("/filterfun/url2DownloadTrainTwOrg",url2DownloadTrainTwOrg) //filterfun.go
+	router.GET("/filterfun/youtubeUrl/cartype/:youtubeId",url2DownloadCarType) //filterfun.go
+	
 
+	//========================= after training =========================
 	// get yolo resualt
-	router.GET("/dataset/queryTrainYoloTag/:youtubeId",queryTrainYoloTagByYoutubeIdHandler)
-	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult)
-	router.GET("/filterfun/getYoloImg/:youtubeId/:filename",getYoloImg)
-	router.GET("/filterfun/trainTwOrg2TrainYolo/:youtubeId",trainTwOrg2TrainYolo)
-
+	router.GET("/dataset/queryTrainYoloTag/:youtubeId",queryTrainYoloTagByYoutubeIdHandler) //carType.go
+	router.GET("/filterfun/parsingTrainYoloResult",parsingTrainYoloResult) //filterfun.go
+	router.GET("/filterfun/getYoloImg/:youtubeId/:filename",getYoloImg) //filterfun.go
+	router.GET("/filterfun/trainTwOrg2TrainYolo/:youtubeId",trainTwOrg2TrainYolo) //filterfun.go
+	
 	// get lpr resualt
-	router.GET("/dataset/queryTrainLprTag/:youtubeId",queryTrainLprTagByYoutubeIdHandler)
-	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult)
-	router.GET("/filterfun/getLprImg/:youtubeId/:filename",getLprImg)
-	router.GET("/filterfun/trainTwOrg2TrainLpr/:youtubeId",trainTwOrg2TrainLpr)
+	router.GET("/dataset/queryTrainLprTag/:youtubeId",queryTrainLprTagByYoutubeIdHandler) //carType.go
+	router.GET("/filterfun/parsingTrainLprResult",parsingTrainLprResult) //filterfun.go
+	router.GET("/filterfun/getLprImg/:youtubeId/:filename",getLprImg) //filterfun.go
+	router.GET("/filterfun/trainTwOrg2TrainLpr/:youtubeId",trainTwOrg2TrainLpr) //filterfun.go
 
 	router.Run(":80")
 }

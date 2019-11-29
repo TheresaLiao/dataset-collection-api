@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+type CarAccidentVo struct {
+	Id  	int		`json:"id"`
+	KeyWord string	`json:"KeyWord"`
+}
+
 type DatasetSummaryVo struct {
 	Title	string `form:"title" json:"title" binding:"required"`
 	Desc	string `form:"desc" json:"desc" binding:"required"`
@@ -13,6 +18,11 @@ type DatasetSummaryVo struct {
 type YoutubeInfoVo struct {
 	FileName	string `form:"filename" json:"filename" binding:"required"`
 	Url 		string `form:"url" json:"url" binding:"required"`
+}
+
+type GetImageVo struct {
+	YoutubeId 	string `form:"youtubeId" json:"youtubeId" binding:"required"`
+	FileName	string `form:"filename" json:"filename" binding:"required"`
 }
 
 type LprItem struct {
@@ -43,6 +53,7 @@ type YoloTag struct {
 }
 
 type SubtitleTagDataSetVo struct {
+	Title	string 			`json:"title"`
 	Desc string 		`json:"desc"`
 	Data []SubtitleTag  `json:"data"`
 }
@@ -65,6 +76,19 @@ type Subtitle struct {
 	Thumbnail	string `json:"thumbnail"`
 }
 
+type SubtitleVo struct {
+	Title	string 			`json:"title"`
+	Desc 	string			`json:"desc"`
+	Data 	[]Subtitle		`json:"data"`
+}
+
+type CarAccitVo struct {
+	Title	string 			`json:"title"`
+	Desc 	string			`json:"desc"`
+	Data 	[]CarAccidentVo	`json:"data"`
+}
+
+
 type TrainTwOrgDataSetVo struct {
 	Title	string 			`json:"title"`
 	Desc 	string			`json:"desc"`
@@ -77,6 +101,7 @@ type TrainTwOrgVo struct {
 	YoutubeId 		string `json:"youtubeId"`
 	Url 			string `json:"url"`
 	Thumbnail 		string `json:"thumbnail"`
+	KeyWord 		string 
 }
 
 type TrainTwTagVo struct {

@@ -16,7 +16,6 @@ import (
 	"regexp"
 )
 
-
 const DOWNLOADS_PATH = "/tmp"
 const SUBTITLE_PATH = "subtitle_"
 const CARACDNT_PATH = "caracdnt_"
@@ -31,93 +30,85 @@ const YOLO_DEID_LPR_URL = "http://task5-4-3-TH:8080/yolo_lpr_image"
 const LPR_URL = "http://task5-4-2-TH:8080/yolo_lpr_image"
 const LPR_FOLDER = "_lpr"
 
-func getLprImg(c *gin.Context){
-	youtubeIdStr := c.Param("youtubeId")
-	filenameStr := c.Param("filename")
-	
-	// srcDirPath : /tmp/traintworg
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
-	// srcDirPathViedo : /tmp/traintworg/viedo
-	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	srcFilePathViedo := filepath.Join(srcDirPathViedo, youtubeIdStr + LPR_FOLDER, filenameStr)
-	
-	content, err := ioutil.ReadFile(srcFilePathViedo)
-	if err != nil{
-		log.Info(err)
-	}
-
-	c.Header("Access-Control-Allow-Origin", "*") 
-	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
-}
-
-func getYoloImg(c *gin.Context){
-	youtubeIdStr := c.Param("youtubeId")
-	filenameStr := c.Param("filename")
-	
-	// srcDirPath : /tmp/traintworg
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
-	// srcDirPathViedo : /tmp/traintworg/viedo
-	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	srcFilePathViedo := filepath.Join(srcDirPathViedo, youtubeIdStr + YOLO_FOLDER, filenameStr)
-	
-	content, err := ioutil.ReadFile(srcFilePathViedo)
-	if err != nil{
-		log.Info(err)
-	}
-
-	c.Header("Access-Control-Allow-Origin", "*") 
-	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
-}
-
-func url2DownloadTrainTwOrg(c *gin.Context){
-	log.Info("url2DownloadTrainTwOrg")
-	// srcDirPath : /tmp/traintworg
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
-	// srcDirPathViedo : /tmp/traintworg/viedo
-	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	log.Info("srcDirPath:"+srcDirPath)
-	log.Info("srcDirPathViedo:"+srcDirPathViedo)
-
-	urls := queryTrainTwOrgUrl()
-
-	for _, url := range urls {
-		log.Info(url)
-		youtubeId := checkUrlAndDownload(url, srcDirPathViedo)
-		
-		// insert youtubeId into train_tw_org where url = srcDirPathViedo
-		log.Info(youtubeId)
-		updateTrainTwOrgUrlByUrl(youtubeId,url)
-	
-		videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+".mp4")
-		dirnameYolo := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+YOLO_FOLDER)
-		dirnameLpr := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeId+LPR_FOLDER)
-		
-		triggerYoloApi(YOLO_URL,videonames,dirnameYolo)
-		triggerLprApi(LPR_URL,videonames,dirnameLpr) 
-	}
-}
-
+// curl http://localhost:port/filterfun/trainTwOrg2TrainYolo/:youtubeId
+// transfer video into image ,and detect yolo type object output JSON
 func trainTwOrg2TrainYolo(c *gin.Context){
 	log.Info("trainTwOrg2TrainYolo")
 	youtubeIdStr := c.Param("youtubeId")
 
-	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+".mp4")
+	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr + FILE_EXTENTION_MP4)
 	dirnameYolo := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+YOLO_FOLDER)
 	
 	triggerYoloApi(YOLO_URL,videonames,dirnameYolo)
 }
 
+func triggerYoloApi(urlStr string, videonames string, dirname string) {
+	log.Info("start triggerYoloApi")
+ 
+    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
+	log.Info(urlStr, "post", post)
+
+    var jsonStr = []byte(post)
+    log.Info("jsonStr", urlStr)
+    log.Info("new_str", bytes.NewBuffer(jsonStr))
+
+    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+	log.Info("response Status:", resp.Status)
+	log.Info("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+	log.Info("response Body:", string(body))
+}
+
+// curl http://localhost:port/filterfun/trainTwOrg2TrainLpr/:youtubeId
+// transfer video into image ,and detect lpr object output JSON
 func trainTwOrg2TrainLpr(c *gin.Context){
 	log.Info("trainTwOrg2TrainLpr")
 	youtubeIdStr := c.Param("youtubeId")
 	
-	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+".mp4")
+	videonames := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr + FILE_EXTENTION_MP4)
 	dirnameLpr := filepath.Join(".", TRAINTWORG_PATH, VIEDO_PATH, youtubeIdStr+LPR_FOLDER)
 	
 	triggerLprApi(LPR_URL,videonames,dirnameLpr)
 }
 
+func triggerLprApi(urlStr string, videonames string, dirname string) {
+	log.Info("start triggerLprApi")
+ 
+    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
+	log.Info(urlStr, "post", post)
 
+    var jsonStr = []byte(post)
+    log.Info("jsonStr", urlStr)
+    log.Info("new_str", bytes.NewBuffer(jsonStr))
+
+    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+	log.Info("response Status:", resp.Status)
+	log.Info("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+	log.Info("response Body:", string(body))
+}
+
+// curl http://localhost:port/filterfun/parsingTrainYoloResult
+// parsing JSON into database
+// INSERT INTO train_yolo_tag("youtube_id","x_num","y_num","width","height","object","filename") 
 func parsingTrainYoloResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_yolo_tag
 	// /tmp/traintworg/video
@@ -174,6 +165,125 @@ func parsingTrainYoloResult(c *gin.Context){
 	}
 }
 
+func triggerDeIdentification (urlStr string, filename string) {
+	log.Info("start triggerDeIdentification")
+ 
+    post := "{\"filename\":\"" + filename + "\"}"
+	log.Info(urlStr, "post", post)
+
+    var jsonStr = []byte(post)
+    log.Info("jsonStr", urlStr)
+    log.Info("new_str", bytes.NewBuffer(jsonStr))
+
+    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+
+	log.Info("response Status:", resp.Status)
+	log.Info("response Headers:", resp.Header)
+    body, _ := ioutil.ReadAll(resp.Body)
+	log.Info("response Body:", string(body))
+}
+
+// records(youtube_id, x_num, y_num, width, height, object,filename)
+func insertTrainYoloTagItem( youtube_id string, x_num int, y_num int,
+	width int,height int, object string,
+						   	filename string){
+	
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	
+	// update columns youtube_id
+	ctx := context.Background()
+	sql_statement := ` INSERT INTO 
+	train_yolo_tag("youtube_id","x_num","y_num","width","height","object","filename") 
+	VALUES ($1 ,$2 ,$3 ,$4 ,$5 ,$6 ,$7 )`
+
+	result, err := db.ExecContext(ctx, sql_statement, youtube_id, x_num, y_num,
+		width, height, object,filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		log.Fatalf("expected to affect 1 row, affected %d", rows)
+	}
+}
+
+func isTraffic(objectTypes string)(resp bool){
+	if (objectTypes == "motorcycle" || objectTypes == "bicycle" || 
+		objectTypes == "bus" || objectTypes == "train"|| 
+		objectTypes == "truck" || objectTypes == "boat" || 
+		objectTypes == "airplane"|| objectTypes == "car"){
+		return true
+	}
+	return false
+}
+
+func queryTrainTwOrgUrlFilterByYoloUrl()([]string){
+	log.Info("queryTrainTwOrgUrl")
+	records := []string{}
+
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	// select table :subtitle_tag ,all rows data
+	sql_statement := `  SELECT "youtube_id" 
+					    FROM train_tw_org 
+						WHERE "youtube_id" != 'NULL'
+						AND "youtube_id" NOT IN ( SELECT DISTINCT "youtube_id" FROM "train_yolo_tag" ) 
+					    ORDER BY "youtube_id"`
+
+	rows, err := db.Query(sql_statement)
+    checkError(err)
+	defer rows.Close()
+
+	var youtubeId string
+
+	for rows.Next() {
+		switch err := rows.Scan(&youtubeId); err {
+        case sql.ErrNoRows:
+			log.Info("No rows were returned")
+		case nil:
+			records =  append(records, youtubeId)
+        default:
+           	checkError(err)
+        }
+	}
+	return records
+}
+
+// curl http://localhost:port/filterfun/parsingTrainLprResult
+// parsing JSON into database
+// INSERT INTO train_lpr_tag("youtube_id","x_num","y_num","width","height","plateNumber","filename") 
 func parsingTrainLprResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_lpr_tag
 	// /tmp/traintworg/video
@@ -227,131 +337,6 @@ func parsingTrainLprResult(c *gin.Context){
 	}
 }
 
-func triggerDeIdentification (urlStr string, filename string) {
-	log.Info("start triggerYoloApi")
- 
-    post := "{\"filename\":\"" + filename + "\"}"
-	log.Info(urlStr, "post", post)
-
-    var jsonStr = []byte(post)
-    log.Info("jsonStr", urlStr)
-    log.Info("new_str", bytes.NewBuffer(jsonStr))
-
-    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
-    req.Header.Set("Content-Type", "application/json")
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-
-	log.Info("response Status:", resp.Status)
-	log.Info("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	log.Info("response Body:", string(body))
-}
-
-func triggerYoloApi(urlStr string, videonames string, dirname string) {
-	log.Info("start triggerYoloApi")
- 
-    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
-	log.Info(urlStr, "post", post)
-
-    var jsonStr = []byte(post)
-    log.Info("jsonStr", urlStr)
-    log.Info("new_str", bytes.NewBuffer(jsonStr))
-
-    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
-    req.Header.Set("Content-Type", "application/json")
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-
-	log.Info("response Status:", resp.Status)
-	log.Info("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	log.Info("response Body:", string(body))
-}
-
-func triggerLprApi(urlStr string, videonames string, dirname string) {
-	log.Info("start triggerLprApi")
- 
-    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
-	log.Info(urlStr, "post", post)
-
-    var jsonStr = []byte(post)
-    log.Info("jsonStr", urlStr)
-    log.Info("new_str", bytes.NewBuffer(jsonStr))
-
-    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
-    req.Header.Set("Content-Type", "application/json")
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-
-	log.Info("response Status:", resp.Status)
-	log.Info("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	log.Info("response Body:", string(body))
-}
-
-func isTraffic(objectTypes string)(resp bool){
-	if (objectTypes == "motorcycle" || objectTypes == "bicycle" || 
-		objectTypes == "bus" || objectTypes == "train"|| 
-		objectTypes == "truck" || objectTypes == "boat" || 
-		objectTypes == "airplane"|| objectTypes == "car"){
-		return true
-	}
-	return false
-}
-
-// records(youtube_id, x_num, y_num, width, height, object,filename)
-func insertTrainYoloTagItem( youtube_id string, x_num int, y_num int,
-	width int,height int, object string,
-						   	filename string){
-	
-	// connect db
-	db, err := sql.Open("postgres",connStr)
-	if err != nil{
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil{
-		panic(err)
-	}
-	
-	// update columns youtube_id
-	ctx := context.Background()
-	sql_statement := ` INSERT INTO 
-	train_yolo_tag("youtube_id","x_num","y_num","width","height","object","filename") 
-	VALUES ($1 ,$2 ,$3 ,$4 ,$5 ,$6 ,$7 )`
-
-	result, err := db.ExecContext(ctx, sql_statement, youtube_id, x_num, y_num,
-		width, height, object,filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if rows != 1 {
-		log.Fatalf("expected to affect 1 row, affected %d", rows)
-	}
-}
-
 // records(youtube_id, x_num, y_num, width, height, plateNumber, filename)
 func insertTrainLprTagItem( youtube_id string, x_num int, y_num int,
 	width int,height int, plateNumber string,
@@ -388,117 +373,57 @@ func insertTrainLprTagItem( youtube_id string, x_num int, y_num int,
 	}
 }
 
-func url2DownloadSubtitle(c *gin.Context){
-	subtitleTagIdStr := c.Param("subtitleTagId")
-	// parentFolderName : subtitle_N , ex. subtitle_1,subtitle_2...
-	parentFolderName := SUBTITLE_PATH + subtitleTagIdStr
-	// srcDirPath : /tmp/subtitle_N
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
-	// srcDirPathViedo : /tmp/subtitle_N/viedo
-	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	// srcDirPathCsv :/tmp/subtitle_N/map.csv
-	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
-	// srcDirPath : /tmp/subtitle_N.tar.gz
-	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
+func queryTrainTwOrgUrlFilterByLprUrl()([]string){
+	log.Info("queryTrainTwOrgUrl")
+	records := []string{}
 
-	// check /tmp/subtitle_N.tar.gz is exit
-	if checkFileIsExit(destFilePath) == false{
-		// query data from sql
-		records := querySubtitle(subtitleTagIdStr)
-		if len(records) == 0 {
-			log.Info("row data empty")
-		}else{
-			createDirectory(srcDirPath)
-			// check /tmp/subtitle_N/map.csv, than search & download
-			if checkFileIsExit(srcDirPathCsv) == false{
-				title := []string{"id","youtube_id","srt_id","url"}
-				getcsv(title,records, srcDirPathCsv)	
-			}
-			// check /tmp/subtitle_N/viedo, than search & download
-			if checkFileIsExit(srcDirPathViedo) == false{
-				for _, item := range records {
-					checkUrlAndDownload(item[3], srcDirPathViedo)
-				}
-			}
-		} 		
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
 
-		// check /tmp/subtitle_N/viedo, than create tar file
-		if checkFileIsExit(srcDirPathViedo) {
-			// tar download folder
-			tarDir(srcDirPath,destFilePath)
-		}
+	err = db.Ping()
+	if err != nil{
+		panic(err)
 	}
-	// check /tmp/subtitle_N.tar.gz is exit?, if exit than return to client
-	if checkFileIsExit(destFilePath) {
-		// download file from server to client
-		respFile2Client(c,destFilePath)
+	log.Info("success connection")
+
+	// select table :subtitle_tag ,all rows data
+	sql_statement := `  SELECT "youtube_id" 
+					    FROM train_tw_org 
+						WHERE "youtube_id" != 'NULL'
+						AND "youtube_id" NOT IN ( SELECT DISTINCT "youtube_id" FROM "train_lpr_tag" ) 
+					    ORDER BY "youtube_id"`
+
+	rows, err := db.Query(sql_statement)
+    checkError(err)
+	defer rows.Close()
+
+	var youtubeId string
+
+	for rows.Next() {
+		switch err := rows.Scan(&youtubeId); err {
+        case sql.ErrNoRows:
+			log.Info("No rows were returned")
+		case nil:
+			records =  append(records, youtubeId)
+        default:
+           	checkError(err)
+        }
 	}
+	return records
 }
 
-func url2DownloadCaracdnt(c *gin.Context){
-	carAccidentTagIdStr := c.Param("carAccidentTagId")
-	// parentFolderName : caracdnt_N , ex. caracdnt_1,caracdnt_2...
-	parentFolderName := CARACDNT_PATH + carAccidentTagIdStr
-	// srcDirPath : /tmp/caracdnt_N
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
-	// srcDirPathViedo : /tmp/caracdnt_N/viedo
-	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
-	// srcDirPathCsv :/tmp/caracdnt_N/map.csv
-	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
-	// srcDirPath : /tmp/caracdnt_N.tar.gz
-	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
-
-
-	// check /tmp/caracdnt_N.tar.gz is exit
-	if checkFileIsExit(destFilePath) == false{
-		// query data from sql
-		records := queryCaracdnt(carAccidentTagIdStr)
-		if len(records) == 0 {
-			log.Info("row data empty")
-		}else{
-
-			createDirectory(srcDirPath)
-
-			// check /tmp/caracdnt_N/map.csv, than search & download
-			if checkFileIsExit(srcDirPathCsv) == false{
-				title := []string{"id","youtube_id","collision_time","url"}
-				getcsv(title,records, srcDirPathCsv)	
-			}
-
-			// check /tmp/caracdnt_N/viedo, than search & download
-			if checkFileIsExit(srcDirPathViedo) == false{
-				for _, item := range records {
-					checkUrlAndDownload(item[3], srcDirPathViedo)
-				}
-			}
-		}
-
-		// check /tmp/caracdnt_N/viedo, than create tar file
-		if checkFileIsExit(srcDirPathViedo) {
-			// tar download folder
-			tarDir(srcDirPath,destFilePath)
-		}
-	}
-
-	// check /tmp/caracdnt_N.tar.gz is exit?, if exit than retur to client
-	if checkFileIsExit(destFilePath) {
-		// download file from server to client
-		respFile2Client(c,destFilePath)
-	}
-}
-
-func url2DownloadCarType(c *gin.Context){
-	log.Info("start url2DownloadCarType")
-	youtubeIdStr := c.Param("youtubeId")
-
-	// srcDirPath: /tmp/traintworg/video
-	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH, VIEDO_PATH)
-	destFilePath := filepath.Join(srcDirPath, youtubeIdStr + FILE_EXTENTION_MP4)
-	respFile2Client(c,destFilePath)
-}
-
+// curl --header "Content-Type: application/json" \
+// --request POST \
+// --data '{"filename":"test","url":"https://www.youtube.com/watch?v=-EWwmIZFBQ8"}' \
+// http://localhost:port/filterfun/youtubeUrl \
+// --output test.mp4
 func url2file(c *gin.Context){
 	//dowmload file from url to server 
+	log.Info("url2file")
 	var youtubeInfoVo YoutubeInfoVo
 	c.BindJSON(&youtubeInfoVo)
 	log.Info("Parameter FileName :" + youtubeInfoVo.FileName)
@@ -520,17 +445,6 @@ func url2file(c *gin.Context){
     }
 }
 
-
-func checkFileIsExit(filepath string)(resp bool){ 
-	log.Info("checkFileIsExit : "+filepath)
-
-	if _, err := os.Stat(filepath); err == nil {
-		log.Info(filepath + " is exeit")
-		return true
-	}
-	return false
-}
-
 // https://github.com/iawia002/annie
 func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	log.Info("url : "+url)
@@ -542,7 +456,6 @@ func checkUrlAndDownload(url string,srcDirPath string)(videoID string){
 	if err := cmd.Run(); err != nil {
 		log.Error("err ", err)
 	}
-
 	return youtubeId
 }
 
@@ -595,7 +508,7 @@ func querySubtitle(subtitleTagIdStr string)(resp [][]string){
 					  FROM subtitle AS A
 					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
 					  WHERE B.subtitle_tag_id = $1
-					  ORDER BY id LIMIT 30`
+					  ORDER BY id`
     rows, err := db.Query(sql_statement,subtitleTagIdStr)
     checkError(err)
 	defer rows.Close()
@@ -618,6 +531,165 @@ func querySubtitle(subtitleTagIdStr string)(resp [][]string){
         }
 	}
 	return records
+}
+
+func respFile2Client(c *gin.Context,destFilePath string){
+	log.Info("start respFile2Client")
+	log.Info("destFilePath : "+ destFilePath)
+
+	// download file from server to client
+	if !strings.HasPrefix(filepath.Clean(destFilePath), DOWNLOADS_PATH) {
+		c.String(403, "Look like you attacking me")
+	   }   
+	c.Header("Access-Control-Allow-Origin", "*") 
+   	c.Header("Content-Description", "File Transfer")
+   	c.Header("Content-Transfer-Encoding", "binary")
+   	c.Header("Content-Disposition", "attachment; destFilePath=" + destFilePath )
+   	c.Header("Content-Type", "application/octet-stream")
+   	c.File(destFilePath)
+}
+
+// records(youtube_id,url)
+func updateTrainTwOrgIdByUrl(youtubeId string,url string){
+	log.Info("updateTrainTwOrgIdByUrl")
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	// update columns youtube_id
+	ctx := context.Background()
+	sql_statement := ` UPDATE train_tw_org SET "youtube_id" =$1 WHERE "URL" =$2 `
+	result, err := db.ExecContext(ctx, sql_statement, youtubeId, url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		log.Fatalf("expected to affect 1 row, affected %d", rows)
+	}
+}
+
+// records(youtube_id,url)
+func updateSubtitleIdByUrl(youtubeId string,url string){
+	log.Info("updateSubtitleUrlByUrl")
+	// connect db
+	db, err := sql.Open("postgres",connStr)
+	if err != nil{
+		panic(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil{
+		panic(err)
+	}
+	log.Info("success connection")
+
+	// update columns youtube_id
+	ctx := context.Background()
+	sql_statement := ` UPDATE subtitle SET "youtube_id" =$1 WHERE "url" =$2 `
+	result, err := db.ExecContext(ctx, sql_statement, youtubeId, url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if rows != 1 {
+		log.Fatalf("expected to affect 1 row, affected %d", rows)
+	}
+}
+
+func createDirectory(dirName string) bool {
+	src, err := os.Stat(dirName)
+	if os.IsNotExist(err) {
+		errDir := os.MkdirAll(dirName, 0755)
+		if errDir != nil {
+			log.Info(errDir)
+		}
+		return true
+	}
+
+	if src.Mode().IsRegular() {
+		log.Info(dirName, "already exist as a file!")
+		return false
+	}
+	return false
+}
+
+func url2DownloadCaracdnt(c *gin.Context){
+	carAccidentTagIdStr := c.Param("carAccidentTagId")
+	// parentFolderName : caracdnt_N , ex. caracdnt_1,caracdnt_2...
+	parentFolderName := CARACDNT_PATH + carAccidentTagIdStr
+	// srcDirPath : /tmp/caracdnt_N
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, parentFolderName)
+	// srcDirPathViedo : /tmp/caracdnt_N/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	// srcDirPathCsv :/tmp/caracdnt_N/map.csv
+	srcDirPathCsv := filepath.Join(srcDirPath, MAP_CSV_NAME)
+	// srcDirPath : /tmp/caracdnt_N.tar.gz
+	destFilePath := filepath.Join(DOWNLOADS_PATH , parentFolderName + FILE_EXTENTION_TAR)
+
+
+	// check /tmp/caracdnt_N.tar.gz is exit
+	if checkFileIsExist(destFilePath) == false{
+		// query data from sql
+		records := queryCaracdnt(carAccidentTagIdStr)
+		if len(records) == 0 {
+			log.Info("row data empty")
+		}else{
+
+			createDirectory(srcDirPath)
+
+			// check /tmp/caracdnt_N/map.csv, than search & download
+			if checkFileIsExist(srcDirPathCsv) == false{
+				title := []string{"id","youtube_id","collision_time","url"}
+				getcsv(title,records, srcDirPathCsv)	
+			}
+
+			// check /tmp/caracdnt_N/viedo, than search & download
+			if checkFileIsExist(srcDirPathViedo) == false{
+				for _, item := range records {
+					checkUrlAndDownload(item[3], srcDirPathViedo)
+				}
+			}
+		}
+
+		// check /tmp/caracdnt_N/viedo, than create tar file
+		if checkFileIsExist(srcDirPathViedo) {
+			// tar download folder
+			tarDir(srcDirPath,destFilePath)
+		}
+	}
+
+	// check /tmp/caracdnt_N.tar.gz is exit?, if exit than retur to client
+	if checkFileIsExist(destFilePath) {
+		// download file from server to client
+		respFile2Client(c,destFilePath)
+	}
+}
+
+func checkFileIsExist(filepath string)(resp bool){ 
+	log.Info("checkFileIsExist : "+filepath)
+
+	if _, err := os.Stat(filepath); err == nil {
+		log.Info(filepath + " is exist")
+		return true
+	}
+	return false
 }
 
 func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
@@ -668,200 +740,4 @@ func queryCaracdnt(carAccidentTagIdStr string)(resp [][]string){
         }
 	}
 	return records
-}
-
-
-// records(youtube_id,url)
-func updateTrainTwOrgUrlByUrl(youtubeId string,url string){
-	log.Info("updateTrainTwOrgUrlByUrl")
-	// connect db
-	db, err := sql.Open("postgres",connStr)
-	if err != nil{
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil{
-		panic(err)
-	}
-	log.Info("success connection")
-
-	// update columns youtube_id
-	ctx := context.Background()
-	sql_statement := ` UPDATE train_tw_org SET "youtube_id" =$1 WHERE "URL" =$2 `
-	result, err := db.ExecContext(ctx, sql_statement, youtubeId, url)
-	if err != nil {
-		log.Fatal(err)
-	}
-	rows, err := result.RowsAffected()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if rows != 1 {
-		log.Fatalf("expected to affect 1 row, affected %d", rows)
-	}
-}
-
-func queryTrainTwOrgUrl()([]string){
-	log.Info("queryTrainTwOrgUrl")
-	records := []string{}
-
-	// connect db
-	db, err := sql.Open("postgres",connStr)
-	if err != nil{
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil{
-		panic(err)
-	}
-	log.Info("success connection")
-
-	// select table :subtitle_tag ,all rows data
-	sql_statement := ` SELECT "URL" FROM train_tw_org 
-					   WHERE "youtube_id" = 'NULL'
-					   ORDER BY "URL"`
-					   //  AND "CarAccidentID" = '3203'
-
-	rows, err := db.Query(sql_statement)
-    checkError(err)
-	defer rows.Close()
-
-	var url string
-
-	for rows.Next() {
-		switch err := rows.Scan(&url); err {
-        case sql.ErrNoRows:
-			log.Info("No rows were returned")
-		case nil:
-			records =  append(records, url)
-        default:
-           	checkError(err)
-        }
-	}
-	return records
-}
-
-func queryTrainTwOrgUrlFilterByYoloUrl()([]string){
-	log.Info("queryTrainTwOrgUrl")
-	records := []string{}
-
-	// connect db
-	db, err := sql.Open("postgres",connStr)
-	if err != nil{
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil{
-		panic(err)
-	}
-	log.Info("success connection")
-
-	// select table :subtitle_tag ,all rows data
-	sql_statement := `  SELECT "youtube_id" 
-					    FROM train_tw_org 
-						WHERE "youtube_id" != 'NULL'
-						AND "youtube_id" NOT IN ( SELECT DISTINCT "youtube_id" FROM "train_yolo_tag" ) 
-					    ORDER BY "youtube_id"`
-
-	rows, err := db.Query(sql_statement)
-    checkError(err)
-	defer rows.Close()
-
-	var youtubeId string
-
-	for rows.Next() {
-		switch err := rows.Scan(&youtubeId); err {
-        case sql.ErrNoRows:
-			log.Info("No rows were returned")
-		case nil:
-			records =  append(records, youtubeId)
-        default:
-           	checkError(err)
-        }
-	}
-	return records
-}
-
-
-func queryTrainTwOrgUrlFilterByLprUrl()([]string){
-	log.Info("queryTrainTwOrgUrl")
-	records := []string{}
-
-	// connect db
-	db, err := sql.Open("postgres",connStr)
-	if err != nil{
-		panic(err)
-	}
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil{
-		panic(err)
-	}
-	log.Info("success connection")
-
-	// select table :subtitle_tag ,all rows data
-	sql_statement := `  SELECT "youtube_id" 
-					    FROM train_tw_org 
-						WHERE "youtube_id" != 'NULL'
-						AND "youtube_id" NOT IN ( SELECT DISTINCT "youtube_id" FROM "train_lpr_tag" ) 
-					    ORDER BY "youtube_id"`
-
-	rows, err := db.Query(sql_statement)
-    checkError(err)
-	defer rows.Close()
-
-	var youtubeId string
-
-	for rows.Next() {
-		switch err := rows.Scan(&youtubeId); err {
-        case sql.ErrNoRows:
-			log.Info("No rows were returned")
-		case nil:
-			records =  append(records, youtubeId)
-        default:
-           	checkError(err)
-        }
-	}
-	return records
-}
-
-
-func respFile2Client(c *gin.Context,destFilePath string){
-	log.Info("start respFile2Client")
-	log.Info("destFilePath : "+ destFilePath)
-
-	// download file from server to client
-	if !strings.HasPrefix(filepath.Clean(destFilePath), DOWNLOADS_PATH) {
-		c.String(403, "Look like you attacking me")
-	   }   
-	c.Header("Access-Control-Allow-Origin", "*") 
-   	c.Header("Content-Description", "File Transfer")
-   	c.Header("Content-Transfer-Encoding", "binary")
-   	c.Header("Content-Disposition", "attachment; destFilePath=" + destFilePath )
-   	c.Header("Content-Type", "application/octet-stream")
-   	c.File(destFilePath)
-}
-
-func createDirectory(dirName string) bool {
-	src, err := os.Stat(dirName)
-	if os.IsNotExist(err) {
-		errDir := os.MkdirAll(dirName, 0755)
-		if errDir != nil {
-			log.Info(errDir)
-		}
-		return true
-	}
-
-	if src.Mode().IsRegular() {
-		log.Info(dirName, "already exist as a file!")
-		return false
-	}
-	return false
 }

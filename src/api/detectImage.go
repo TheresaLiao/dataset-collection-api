@@ -1,12 +1,12 @@
 package main
 
 import (
-	
 	"bytes"
 	"io/ioutil"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"path/filepath"
 )
 
 var detectImgUrl = "http://task5-4-8-TH:8080/yolo_coco_image"
@@ -15,14 +15,14 @@ var detectImgUrl = "http://task5-4-8-TH:8080/yolo_coco_image"
  * input binary 
  * output json file
  */
+
+// curl -X POST \
+// --data-binary "@/file_path" \
+// http://localhost:port/filterfun/detectImg
 func postDetectImgHandler(c *gin.Context) {
-
-	log.Info("===================")
-	log.Info("POST")
 	log.Info("postDetectImgHandler")
-
-	log.Info("call detection post")
 	log.Info("detectImgUrl : " + detectImgUrl)
+
 	httpDetectionApiPost := detectionApiPost(detectImgUrl, c)
 	log.Info(strconv.Itoa(httpDetectionApiPost.StatusCode))
 	
@@ -69,4 +69,59 @@ func detectionApiPost(apiUrl string,c *gin.Context)(httpResp HttpResp) {
 	context := convertBody2Str(resp)
 	log.Info("context: "+context)
 	return HttpResp{resp.StatusCode, context}
+}
+
+// curl --header "Content-Type: application/json" \
+// --request POST \
+// --data '{"filename":"res_00011441.jpg","youtubeId":"zoqVFEuVPJY"}' \
+// http://localhost:port/filterfun/getYoloImg \
+// --output res_00011441.mp4
+func getYoloImg(c *gin.Context){
+	log.Info("getYoloImg")	
+	var getImageVo GetImageVo
+	c.BindJSON(&getImageVo)
+	log.Info("Parameter FileName :" + getImageVo.FileName)
+	log.Info("Parameter YoutubeId :" + getImageVo.YoutubeId)
+	
+	// srcDirPath : /tmp/traintworg
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
+	// srcDirPathViedo : /tmp/traintworg/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	srcFilePathViedo := filepath.Join(srcDirPathViedo, getImageVo.YoutubeId + YOLO_FOLDER, getImageVo.FileName)
+	
+	log.Info("srcFilePathViedo :" + srcFilePathViedo)
+	content, err := ioutil.ReadFile(srcFilePathViedo)
+	if err != nil{
+		log.Info(err)
+	}
+
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
+}
+
+// curl --header "Content-Type: application/json" \
+// --request POST \
+// --data '{"filename":"res_00011441.jpg","youtubeId":"zoqVFEuVPJY"}' \
+// http://localhost:port/filterfun/getLprImg \
+// --output res_00011441.mp4
+func getLprImg(c *gin.Context){
+	log.Info("getYoloImg")	
+	var getImageVo GetImageVo
+	c.BindJSON(&getImageVo)
+	log.Info("Parameter FileName :" + getImageVo.FileName)
+	log.Info("Parameter YoutubeId :" + getImageVo.YoutubeId)
+	
+	// srcDirPath : /tmp/traintworg
+	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
+	// srcDirPathViedo : /tmp/traintworg/viedo
+	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
+	srcFilePathViedo := filepath.Join(srcDirPathViedo, getImageVo.YoutubeId + LPR_FOLDER,  getImageVo.FileName)
+	
+	content, err := ioutil.ReadFile(srcFilePathViedo)
+	if err != nil{
+		log.Info(err)
+	}
+
+	c.Header("Access-Control-Allow-Origin", "*") 
+	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
 }

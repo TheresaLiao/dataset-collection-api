@@ -8,8 +8,8 @@ import (
 	"net/http"
 )
 
-func getDatasetList(c *gin.Context){
-	log.Info("getDatasetList")
+func GetDatasetList(c *gin.Context){
+	log.Info("GetDatasetList")
 
 	// connect db
 	db, err := sql.Open("postgres",connStr)

@@ -39,9 +39,7 @@ type HttpResp struct {
 }
 
 func main() {
-	//init log
 	// initLogSetting(logging.DEBUG)
-	fmt.Println("start api")
 	router := gin.Default()
 
 	// Check client ip is accept to connect
@@ -56,7 +54,6 @@ func main() {
 	whitelist[whiteip8] = true
 	whitelist[whiteip9] = true
 	whitelist[whiteip10] = true
-
 	//router.Use(IPWhiteList(whitelist))
 
 	//GET Default version
@@ -69,7 +66,7 @@ func main() {
 
 	//========================= dataset list =========================
 	// summary dataset list
-	router.GET("/dataset/list",getDatasetList) 							//summary.go
+	router.GET("/dataset/list",GetDatasetList) 							//summary.go
 
 	// dataset subtitle 
 	router.GET("/dataset/subtitle", querySubtitleTagHandler) 							//subTitle.go

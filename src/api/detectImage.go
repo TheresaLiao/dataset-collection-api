@@ -61,6 +61,7 @@ func detectionApiPost(apiUrl string,c *gin.Context)(httpResp HttpResp) {
 		log.Errorf("DefaultClient fail", err)
 		return HttpResp{http.StatusUnauthorized, "call detectionApiPost fail"}
 	}
+
 	log.Info("call detectionApiPost work")
 	log.Info(resp.StatusCode)
 	defer resp.Body.Close()
@@ -124,4 +125,14 @@ func getLprImg(c *gin.Context){
 
 	c.Header("Access-Control-Allow-Origin", "*") 
 	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
+}
+
+func convertBody2Str(resp *http.Response) (context string) {
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Info("Error ioutil.ReadAll")
+		log.Info(string(data))
+		return
+	}
+	return string(data)
 }

@@ -421,7 +421,7 @@ func queryTrainTwOrgUrlFilterByLprUrl()([]string){
 // --data '{"filename":"test","url":"https://www.youtube.com/watch?v=-EWwmIZFBQ8"}' \
 // http://localhost:port/filterfun/youtubeUrl \
 // --output test.mp4
-func url2file(c *gin.Context){
+func Url2file(c *gin.Context){
 	//dowmload file from url to server 
 	log.Info("url2file")
 	var youtubeInfoVo YoutubeInfoVo

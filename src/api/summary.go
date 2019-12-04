@@ -8,6 +8,7 @@ import (
 	"net/http"
 )
 
+// curl http://localhost:port/dataset/list
 func GetDatasetList(c *gin.Context){
 	log.Info("GetDatasetList")
 

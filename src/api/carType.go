@@ -337,16 +337,15 @@ func insertTrainTwOrgItem(item TrainTwOrgVo){
 	}
 }
 
-func getYoutubeInfoById(c *gin.Context){
-	log.Info("getYoutubeInfoById")
-
-	youtubeIdStr := c.Param("youtubeId")
-	pic := getYoutubeInfoByIdhttp(youtubeIdStr)
-	log.Info(pic)
-
-	c.Header("Access-Control-Allow-Origin", "*") 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": pic})
-}
+// // curl http://localhost:port/filterfun/youtubeInfo/:youtubeId
+// func getYoutubeInfoById(c *gin.Context){
+// 	log.Info("getYoutubeInfoById")
+// 	youtubeIdStr := c.Param("youtubeId")
+// 	pic := getYoutubeInfoByIdhttp(youtubeIdStr)
+// 	log.Info(pic)
+// 	c.Header("Access-Control-Allow-Origin", "*") 
+// 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": pic})
+// }
 
 // UPDATE "train_tw_org"."thumbnail" 
 // WHERE "youtube_id" != 'NULL' AND "thumbnail" = ''
@@ -500,6 +499,7 @@ func getYoutubeListSearchByKeyWord(searchKeyWord string)(trainTwOrgVos []TrainTw
 
 // curl http://localhost:port/filterfun/url2DownloadTrainTwOrg
 // auto download all video and update table
+// also trigger detect object & lpr 
 func url2DownloadTrainTwOrg(c *gin.Context){
 	log.Info("url2DownloadTrainTwOrg")
 	// srcDirPath : /tmp/traintworg

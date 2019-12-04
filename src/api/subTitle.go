@@ -193,6 +193,7 @@ func getSubTitleThumbnail(c *gin.Context){
 // curl --request GET \
 // http://localhost:port/dataset/youtubeUrl/subtitle/${subtitleTagId} \
 // --output ${filename}
+// download this dataset all videos into one zip
 func url2DownloadSubtitleTag(c *gin.Context){
 	log.Info("start url2DownloadSubtitleTag")
 	subtitleTagIdStr := c.Param("subtitleTagId")

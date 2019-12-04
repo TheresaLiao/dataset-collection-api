@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
@@ -58,16 +57,16 @@ func main() {
 
 	//GET Default version
 	router.GET("/", check)
+
+	// summary dataset list
+	router.GET("/dataset/list",GetDatasetList) 							//summary.go
 	
 	// get data list by filter parameter
 	router.POST("/filterfun/detectImg", postDetectImgHandler) 			//detectImage.go
-	router.POST("/filterfun/youtubeUrl", url2file) 						//filterfun.go
-	router.GET("/filterfun/youtubeInfo/:youtubeId", getYoutubeInfoById) //carType.go
+	router.POST("/filterfun/youtubeUrl", Url2file) 						//filterfun.go
+	// router.GET("/filterfun/youtubeInfo/:youtubeId", getYoutubeInfoById) //carType.go
 
 	//========================= dataset list =========================
-	// summary dataset list
-	router.GET("/dataset/list",GetDatasetList) 							//summary.go
-
 	// dataset subtitle 
 	router.GET("/dataset/subtitle", querySubtitleTagHandler) 							//subTitle.go
 	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler) //subTitle.go
@@ -121,17 +120,6 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
 		}
 		cntConnection++
 	}
-}
-
-func convertBody2Str(resp *http.Response) (context string) {
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Info("Error ioutil.ReadAll")
-		log.Info(string(data))
-		return
-	}
-	//log.Info(string(data))
-	return string(data)
 }
 
 func checkError(err error) {

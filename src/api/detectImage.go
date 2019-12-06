@@ -118,6 +118,7 @@ func getLprImg(c *gin.Context){
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
 	srcFilePathViedo := filepath.Join(srcDirPathViedo, getImageVo.YoutubeId + LPR_FOLDER,  getImageVo.FileName)
 	
+	log.Info(srcFilePathViedo)
 	content, err := ioutil.ReadFile(srcFilePathViedo)
 	if err != nil{
 		log.Info(err)

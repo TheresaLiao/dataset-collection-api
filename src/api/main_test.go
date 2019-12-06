@@ -2,14 +2,10 @@ package main
 
 import (
 	"os"
-	//"io"
 	"bytes"
 	"testing"
 	"net/http"
 	"io/ioutil"
-	//"net/http/httptest"
-	//"github.com/gin-gonic/gin"
-	//"mime/multipart"
 	"github.com/stretchr/testify/assert"
 )
 var testUrl = "http://localhost:80"
@@ -222,7 +218,7 @@ func TestQueryTrainTwOrgHandler(t *testing.T) {
 
 func TestUrl2DownloadCarType(t *testing.T) {
 	// Request
-	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/youtubeUrl/cartype/0-7_nvNNdcM ", nil)
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/youtubeUrl/cartype/0-7_nvNNdcM", nil)
 	// response
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -235,9 +231,45 @@ func TestUrl2DownloadCarType(t *testing.T) {
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func Test(t *testing.T) {
+
+// func TestGetSearchByKeyWord(t *testing.T) {
+// 	// Request
+// 	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/filterfun/youtubeUrl/getSearchByKeyWord", nil)
+	
+// 	// response
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		t.Log(err)
+// 	}
+// 	defer resp.Body.Close()
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	t.Log(string(body))
+
+// 	// 200 = 200
+// 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+// }
+
+func TestGetTrainTwOrgThumbnail(t *testing.T) {
 	// Request
-	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/", nil)
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/queryTrainTwOrg/getThumbnail", nil)
+	
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+
+func TestQueryCarAccidentTagHandler(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/caracdnt", nil)
 	// response
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -249,3 +281,169 @@ func Test(t *testing.T) {
 	// 200 = 200
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
+
+func TestQueryCarAccidentByIdHandler(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/caracdnt/1", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestQueryTrainYoloTagByYoutubeIdHandler(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/queryTrainYoloTag/0-7_nvNNdcM", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestTrainTwOrg2TrainYolo(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/filterfun/trainTwOrg2TrainYolo/0-7_nvNNdcM", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestParsingTrainYoloResult(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/filterfun/parsingTrainYoloResult", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetYoloImg(t *testing.T) {
+	// Request
+	var jsonStr = []byte(`{"filename":"res_00000001.jpg","youtubeId":"C4rO3gowyxk"}`)
+	req, err := http.NewRequest(http.MethodPost, testUrl+ "/filterfun/getYoloImg", bytes.NewBuffer(jsonStr))
+	if err != nil {
+        log.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+
+	// response
+	resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(len(body))
+
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+
+func TestQueryTrainLprTagByYoutubeIdHandler(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/dataset/queryTrainLprTag/0-7_nvNNdcM", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestTrainTwOrg2TrainLpr(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/filterfun/trainTwOrg2TrainLpr/0-7_nvNNdcM", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestParsingTrainLprResult(t *testing.T) {
+	// Request
+	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/filterfun/parsingTrainLprResult", nil)
+	// response
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Log(err)
+	}
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(string(body))
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+func TestGetLprImg(t *testing.T) {
+	// Request
+	var jsonStr = []byte(`{"filename":"res_00000401.jpg","youtubeId":"0WX9D_TR3HI"}`)
+	req, err := http.NewRequest(http.MethodPost, testUrl+ "/filterfun/getLprImg", bytes.NewBuffer(jsonStr))
+	if err != nil {
+        log.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	t.Log(len(body))
+
+	// 200 = 200
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+}
+
+// func Test(t *testing.T) {
+// 	// Request
+// 	req, _ := http.NewRequest(http.MethodGet, testUrl+ "/", nil)
+// 	// response
+// 	resp, err := http.DefaultClient.Do(req)
+// 	if err != nil {
+// 		t.Log(err)
+// 	}
+// 	defer resp.Body.Close()
+// 	body, _ := ioutil.ReadAll(resp.Body)
+// 	t.Log(string(body))
+// 	// 200 = 200
+// 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+// }

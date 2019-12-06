@@ -45,27 +45,31 @@ func trainTwOrg2TrainYolo(c *gin.Context){
 func triggerYoloApi(urlStr string, videonames string, dirname string) {
 	log.Info("start triggerYoloApi")
  
-    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
-	log.Info(urlStr, "post", post)
-
-    var jsonStr = []byte(post)
-    log.Info("jsonStr", urlStr)
-    log.Info("new_str", bytes.NewBuffer(jsonStr))
-
-    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
-    req.Header.Set("Content-Type", "application/json")
-
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
-
-	log.Info("response Status:", resp.Status)
-	log.Info("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	log.Info("response Body:", string(body))
+	if _, err := os.Stat(dirname); os.IsNotExist(err) {
+		post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
+		log.Info(urlStr, "post", post)
+	
+		var jsonStr = []byte(post)
+		log.Info("jsonStr", urlStr)
+		log.Info("new_str", bytes.NewBuffer(jsonStr))
+	
+		req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+		req.Header.Set("Content-Type", "application/json")
+	
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+	
+		log.Info("response Status:", resp.Status)
+		log.Info("response Headers:", resp.Header)
+		body, _ := ioutil.ReadAll(resp.Body)
+		log.Info("response Body:", string(body))
+	}else{
+		log.Info(dirname + " is exist")
+	}
 }
 
 // curl http://localhost:port/filterfun/trainTwOrg2TrainLpr/:youtubeId
@@ -83,27 +87,32 @@ func trainTwOrg2TrainLpr(c *gin.Context){
 func triggerLprApi(urlStr string, videonames string, dirname string) {
 	log.Info("start triggerLprApi")
  
-    post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
-	log.Info(urlStr, "post", post)
+	if _, err := os.Stat(dirname); os.IsNotExist(err) {
+		post := "{\"videonames\":\"" + videonames + "\", \"dirname\": \"" + dirname + "\"}"
+		log.Info(urlStr, "post", post)
 
-    var jsonStr = []byte(post)
-    log.Info("jsonStr", urlStr)
-    log.Info("new_str", bytes.NewBuffer(jsonStr))
+    	var jsonStr = []byte(post)
+    	log.Info("jsonStr", urlStr)
+    	log.Info("new_str", bytes.NewBuffer(jsonStr))
 
-    req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
-    req.Header.Set("Content-Type", "application/json")
+    	req, err := http.NewRequest("POST", urlStr, bytes.NewBuffer(jsonStr))
+    	req.Header.Set("Content-Type", "application/json")
 
-    client := &http.Client{}
-    resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+	    client := &http.Client{}
+    	resp, err := client.Do(req)
+    	if err != nil {
+        	panic(err)
+    	}
+    	defer resp.Body.Close()
 
-	log.Info("response Status:", resp.Status)
-	log.Info("response Headers:", resp.Header)
-    body, _ := ioutil.ReadAll(resp.Body)
-	log.Info("response Body:", string(body))
+		log.Info("response Status:", resp.Status)
+		log.Info("response Headers:", resp.Header)
+    	body, _ := ioutil.ReadAll(resp.Body)
+		log.Info("response Body:", string(body))
+	}else{
+		log.Info(dirname + " is exist")
+	}
+    
 }
 
 // curl http://localhost:port/filterfun/parsingTrainYoloResult

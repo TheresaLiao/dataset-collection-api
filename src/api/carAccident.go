@@ -75,7 +75,7 @@ func queryCarAccidentByIdHandler(c *gin.Context){
 		}
 		log.Info("success connection")
 
-		sql_statement := ` SELECT B."CarAccidentID", B."title", B."youtube_id", B."URL", B."thumbnail"
+		sql_statement := ` SELECT B."CarAccidentID", B."title", B."youtube_id", B."URL", B."thumbnail", B."KeyWord"
 											 FROM "car_accident" AS A
 											 LEFT JOIN train_tw_org as B ON A."KeyWord" = B."KeyWord"
 											 WHERE A."id" = $1`
@@ -89,11 +89,12 @@ func queryCarAccidentByIdHandler(c *gin.Context){
 		var youtube_id string
 		var url string
 		var thumbnail string
+		var keyWord string
 		var trainTwOrgVo TrainTwOrgVo
 		var trainTwOrgVos []TrainTwOrgVo
 
 		for rows.Next() {
-			switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url, &thumbnail); err {
+			switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url, &thumbnail, &keyWord); err {
 					case sql.ErrNoRows:
 					log.Info("No rows were returned")
 			case nil:			
@@ -102,6 +103,7 @@ func queryCarAccidentByIdHandler(c *gin.Context){
 					trainTwOrgVo.YoutubeId = youtube_id
 					trainTwOrgVo.Url = url
 					trainTwOrgVo.Thumbnail = thumbnail
+					trainTwOrgVo.KeyWord = keyWord
 					trainTwOrgVos = append(trainTwOrgVos, trainTwOrgVo)
 			default:
 					checkError(err)

@@ -6,7 +6,7 @@ import (
 
 type CarAccidentVo struct {
 	Id  	int		`json:"id"`
-	KeyWord string	`json:"KeyWord"`
+	KeyWord string	`json:"keyWord"`
 }
 
 type DatasetSummaryVo struct {
@@ -70,10 +70,11 @@ type SubtitleTag struct {
 }
 
 type Subtitle struct {
-	Id  		int 		`json:"id"`
+	Id  		int		`json:"id"`
 	Title 		string 	`json:"title"`
-	Url 		string 		`json:"url"`
-	Thumbnail	string `json:"thumbnail"`
+	Url 		string	`json:"url"`
+	Thumbnail	string	`json:"thumbnail"`
+	SrtUrl		string	`json:"srtUrl"`
 }
 
 type SubtitleVo struct {
@@ -101,7 +102,7 @@ type TrainTwOrgVo struct {
 	YoutubeId 		string `json:"youtubeId"`
 	Url 			string `json:"url"`
 	Thumbnail 		string `json:"thumbnail"`
-	KeyWord 		string 
+	KeyWord 		string `json:"keyWord"`
 }
 
 type TrainTwTagVo struct {

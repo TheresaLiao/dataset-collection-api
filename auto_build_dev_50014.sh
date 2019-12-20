@@ -1,10 +1,11 @@
 container_name="task5-4-4-TH"
-image_name="task5-4-6-th:191105-th"
+image_name="task5-4-6-th:191220-th"
 port1="50014"
 
 
 docker stop $container_name
 docker rm -f $container_name
+## docker build -t $image_name -f docker/Dockerfile .
 docker run --name $container_name \
            -ti -d \
            --network=datasetbridge \

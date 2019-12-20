@@ -78,7 +78,7 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	log.Info("success connection")
 
 	// select table :subtitle_tag ,all rows data
-	sql_statement := `SELECT A.id, A.title, A.url, A.thumbnail
+	sql_statement := `SELECT A.id, A.title, A.url, A.thumbnail, A.youtube_id
 					  FROM subtitle AS A
 					  LEFT JOIN subtitle_tag_map AS B ON A.id=B.subtitle_id
 					  WHERE B.subtitle_tag_id = $1`
@@ -90,12 +90,13 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	var title string
 	var url string
 	var thumbnail string
+	var youtubeId string
 
 	var subtitle Subtitle
 	var subtitles []Subtitle
 
 	for rows.Next() {
-		switch err := rows.Scan(&id, &title, &url, &thumbnail); err {
+		switch err := rows.Scan(&id, &title, &url, &thumbnail, &youtubeId); err {
         case sql.ErrNoRows:
 			log.Info("No rows were returned")
 		case nil:
@@ -103,6 +104,7 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 			subtitle.Title = title
 			subtitle.Url = url
 			subtitle.Thumbnail = thumbnail
+			subtitle.SrtUrl = "https://www.youtube.com/api/timedtext?v="+youtubeId+"&lang=zh-TW"
 			subtitles = append(subtitles, subtitle)
 			   
         default:

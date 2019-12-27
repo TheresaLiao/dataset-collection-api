@@ -8,6 +8,15 @@ import (
 	"net/http"
 )
 
+// GetDatasetList example
+// @Summary show all dataset list info
+// @Description 
+// @Tags dataset list
+// @ID get-dataset-list
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/list [get]
 // curl http://localhost:port/dataset/list
 func GetDatasetList(c *gin.Context){
 	log.Info("GetDatasetList")

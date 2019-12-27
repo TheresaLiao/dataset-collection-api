@@ -30,9 +30,20 @@ const YOLO_DEID_LPR_URL = "http://task5-4-3-TH:8080/yolo_lpr_image"
 const LPR_URL = "http://task5-4-2-TH:8080/yolo_lpr_image"
 const LPR_FOLDER = "_lpr"
 
+// TrainTwOrg2TrainYolo example
+// @Summary trigger video into yolo detect image
+// @Description 
+// @Tags yolo resualt
+// @ID train-twOrg-to-train-yolo
+// @Accept  json
+// @Produce  json
+// @Param   youtubeId	path	int	true	"Youtube Id"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Youtube ID!!"
+// @Router /filterfun/trainTwOrg2TrainYolo/{youtubeId} [get]
 // curl http://localhost:port/filterfun/trainTwOrg2TrainYolo/:youtubeId
 // transfer video into image ,and detect yolo type object output JSON
-func trainTwOrg2TrainYolo(c *gin.Context){
+func TrainTwOrg2TrainYolo(c *gin.Context){
 	log.Info("trainTwOrg2TrainYolo")
 	youtubeIdStr := c.Param("youtubeId")
 
@@ -72,9 +83,20 @@ func triggerYoloApi(urlStr string, videonames string, dirname string) {
 	}
 }
 
+// TrainTwOrg2TrainLpr example
+// @Summary trigger video into lpr detect image
+// @Description
+// @Tags lpr resualt
+// @ID train-twOrg-to-train-lpr
+// @Accept  json
+// @Produce  json
+// @Param   youtubeId      path   int     true  "Youtube ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Youtube ID!!
+// @Router /filterfun/trainTwOrg2TrainLpr/{youtubeId} [get]
 // curl http://localhost:port/filterfun/trainTwOrg2TrainLpr/:youtubeId
 // transfer video into image ,and detect lpr object output JSON
-func trainTwOrg2TrainLpr(c *gin.Context){
+func TrainTwOrg2TrainLpr(c *gin.Context){
 	log.Info("trainTwOrg2TrainLpr")
 	youtubeIdStr := c.Param("youtubeId")
 	
@@ -115,10 +137,19 @@ func triggerLprApi(urlStr string, videonames string, dirname string) {
     
 }
 
+// ParsingTrainYoloResult example
+// @Summary parsing yolo detect result insert into train_yolo_tag data
+// @Description 
+// @Tags yolo resualt
+// @ID parsing-train-yolo-result
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /filterfun/parsingTrainYoloResult [get]
 // curl http://localhost:port/filterfun/parsingTrainYoloResult
 // parsing JSON into database
 // INSERT INTO train_yolo_tag("youtube_id","x_num","y_num","width","height","object","filename") 
-func parsingTrainYoloResult(c *gin.Context){
+func ParsingTrainYoloResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_yolo_tag
 	// /tmp/traintworg/video
 	log.Info("parsingTrainYoloResult")
@@ -290,10 +321,19 @@ func queryTrainTwOrgUrlFilterByYoloUrl()([]string){
 	return records
 }
 
+// ParsingTrainLprResult example
+// @Summary parsing lpr detect result into train_lpr_tag
+// @Description 
+// @Tags lpr resualt
+// @ID parsing-train-lpr-result
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /filterfun/parsingTrainLprResult [get]
 // curl http://localhost:port/filterfun/parsingTrainLprResult
 // parsing JSON into database
 // INSERT INTO train_lpr_tag("youtube_id","x_num","y_num","width","height","plateNumber","filename") 
-func parsingTrainLprResult(c *gin.Context){
+func ParsingTrainLprResult(c *gin.Context){
 	// Read file and mapping viedoId.txt and jpg file into train_lpr_tag
 	// /tmp/traintworg/video
 	log.Info("parsingTrainLprResult")
@@ -425,6 +465,19 @@ func queryTrainTwOrgUrlFilterByLprUrl()([]string){
 	return records
 }
 
+// Url2file example
+// @Summary download youtube video by url
+// @Description Download youtube video by url
+// @Tags get data list by filter parameter
+// @ID url-to-file
+// @Accept  json
+// @Produce  multipart/form-data
+// @Param	filename	query	string	true  "filename"
+// @Param	url	query	string	true  "url"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need ID!!"
+// @Failure 404 {object} string "Can not find ID"
+// @Router /filterfun/youtubeUrl [post]
 // curl --header "Content-Type: application/json" \
 // --request POST \
 // --data '{"filename":"test","url":"https://www.youtube.com/watch?v=-EWwmIZFBQ8"}' \

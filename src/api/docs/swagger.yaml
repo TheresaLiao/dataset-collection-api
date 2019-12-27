@@ -1,0 +1,509 @@
+host: 10.201.252.7:30014
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This api call data from youtube anf table
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Dataset Collection API
+  version: "1.0"
+paths:
+  /dataset/caracdnt:
+    get:
+      consumes:
+      - application/json
+      operationId: query-carAccident-tag-handler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: get car accident summary
+      tags:
+      - dataset car accident
+  /dataset/caracdnt/{carAccidentId}:
+    get:
+      consumes:
+      - application/json
+      operationId: query-carAccident-by-id-handler
+      parameters:
+      - description: Car Accident Id
+        in: path
+        name: carAccidentId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need CarAccidentId!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: get list by carAccidentId
+      tags:
+      - dataset car accident
+  /dataset/list:
+    get:
+      consumes:
+      - application/json
+      operationId: get-dataset-list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: show all dataset list info
+      tags:
+      - dataset list
+  /dataset/queryTrainLprTag/{youtubeId}:
+    get:
+      consumes:
+      - application/json
+      operationId: query-train-lpr-tag-by-youtubeId-handler
+      parameters:
+      - description: Youtube ID
+        in: path
+        name: youtubeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Youtube ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: trigger video into lpr detect image
+      tags:
+      - lpr resualt
+  /dataset/queryTrainTwOrg:
+    get:
+      consumes:
+      - application/json
+      operationId: query-train-twOrg-handler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: get car type summary
+      tags:
+      - dataset car type
+  /dataset/queryTrainTwOrg/getThumbnail:
+    get:
+      consumes:
+      - application/json
+      operationId: get-train-twOrg-thumbnail
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: update Thumbnail info for all car type data
+      tags:
+      - dataset car type
+  /dataset/queryTrainYoloTag/{youtubeId}:
+    get:
+      consumes:
+      - application/json
+      operationId: query-train-yolo-tag-by-youtubeId-handler
+      parameters:
+      - description: Youtube ID
+        in: path
+        name: youtubeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Youtube ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: get yolo detect info by youtubeId
+      tags:
+      - yolo resualt
+  /dataset/subTitleThumbnail:
+    get:
+      consumes:
+      - application/json
+      operationId: get-subTitle-thumbnail
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: update Thumbnail info for all subtitle data
+      tags:
+      - dataset subtitle
+  /dataset/subtitle:
+    get:
+      consumes:
+      - application/json
+      operationId: query-subtitle-tag-handler
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: get subtitle summary
+      tags:
+      - dataset subtitle
+  /dataset/subtitle/{subtitleTagId}:
+    get:
+      consumes:
+      - application/json
+      operationId: query-subtitle-by-subtitle-tagId-handler
+      parameters:
+      - description: subtitleTag id
+        in: path
+        name: subtitleTagId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need subtitleTag ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: get this subtitleTagId detail list
+      tags:
+      - dataset subtitle
+  /dataset/youtubeUrl/cartype/{youtubeId}:
+    get:
+      consumes:
+      - application/json
+      operationId: url-to-download-car-type
+      parameters:
+      - description: Youtube ID
+        in: path
+        name: youtubeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need youtube Id!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: download video by youtubeId
+      tags:
+      - dataset car type
+  /dataset/youtubeUrl/subtitle/{subtitleTagId}:
+    get:
+      consumes:
+      - application/json
+      operationId: url-to-download-subtitle-tag
+      parameters:
+      - description: Subtitle Tag ID
+        in: path
+        name: subtitleTagId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Subtitle Tag ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: download dataset by subtitleTagId
+      tags:
+      - dataset subtitle
+  /dataset/youtubeUrl/subtitleById/{subtitleId}:
+    get:
+      consumes:
+      - application/json
+      operationId: url-to-download-subtitle-id
+      parameters:
+      - description: Subtitle ID
+        in: path
+        name: subtitleId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Subtitle ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: download video by subtitleId
+      tags:
+      - dataset subtitle
+  /filterfun/detectImg:
+    post:
+      consumes:
+      - multipart/form-data
+      description: post by binary image output json string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/string'
+      summary: detect Imgage object
+      tags:
+      - get data list by filter parameter
+  /filterfun/getLprImg:
+    post:
+      consumes:
+      - application/json
+      operationId: get-lpr-img
+      parameters:
+      - description: File Name
+        in: path
+        name: filename
+        required: true
+        type: string
+      - description: Youtube Id
+        in: body
+        name: youtubeId
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need File Name!!
+          schema:
+            $ref: '#/definitions/string'
+        "404":
+          description: We need Youtube Id!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: download lpr detect image file
+      tags:
+      - lpr resualt
+  /filterfun/getYoloImg:
+    post:
+      consumes:
+      - application/json
+      operationId: get-yolo-img
+      parameters:
+      - description: File Name
+        in: path
+        name: filename
+        required: true
+        type: string
+      - description: Youtube Id
+        in: body
+        name: youtubeId
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need File Name!!
+          schema:
+            $ref: '#/definitions/string'
+        "404":
+          description: We need Youtube Id!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: download yolo detect image file
+      tags:
+      - yolo resualt
+  /filterfun/parsingTrainLprResult:
+    get:
+      consumes:
+      - application/json
+      operationId: parsing-train-lpr-result
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: parsing lpr detect result into train_lpr_tag
+      tags:
+      - lpr resualt
+  /filterfun/parsingTrainYoloResult:
+    get:
+      consumes:
+      - application/json
+      operationId: parsing-train-yolo-result
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: parsing yolo detect result insert into train_yolo_tag data
+      tags:
+      - yolo resualt
+  /filterfun/trainTwOrg2TrainLpr/{youtubeId}:
+    get:
+      consumes:
+      - application/json
+      operationId: train-twOrg-to-train-lpr
+      parameters:
+      - description: Youtube ID
+        in: path
+        name: youtubeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Youtube ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: trigger video into lpr detect image
+      tags:
+      - lpr resualt
+  /filterfun/trainTwOrg2TrainYolo/{youtubeId}:
+    get:
+      consumes:
+      - application/json
+      operationId: train-twOrg-to-train-yolo
+      parameters:
+      - description: Youtube Id
+        in: path
+        name: youtubeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need Youtube ID!!
+          schema:
+            $ref: '#/definitions/string'
+      summary: trigger video into yolo detect image
+      tags:
+      - yolo resualt
+  /filterfun/url2DownloadTrainTwOrg:
+    get:
+      consumes:
+      - application/json
+      operationId: url-to-download-train-twOrg
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: download all video ,than update table and trigger to yolo/lpr
+      tags:
+      - dataset car type
+  /filterfun/youtubeUrl:
+    post:
+      consumes:
+      - application/json
+      description: Download youtube video by url
+      operationId: url-to-file
+      parameters:
+      - description: filename
+        in: query
+        name: filename
+        required: true
+        type: string
+      - description: url
+        in: query
+        name: url
+        required: true
+        type: string
+      produces:
+      - multipart/form-data
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "400":
+          description: We need ID!!
+          schema:
+            $ref: '#/definitions/string'
+        "404":
+          description: Can not find ID
+          schema:
+            $ref: '#/definitions/string'
+      summary: download youtube video by url
+      tags:
+      - get data list by filter parameter
+  /filterfun/youtubeUrl/getSearchByKeyWord:
+    get:
+      consumes:
+      - application/json
+      operationId: get-search-by-keyWord
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+      summary: insert new data by keyword
+      tags:
+      - dataset car type
+swagger: "2.0"

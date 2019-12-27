@@ -8,9 +8,17 @@ import (
 	"path/filepath"
 )
 
-
+// QuerySubtitleTagHandler example
+// @Summary get subtitle summary
+// @Description 
+// @Tags dataset subtitle 
+// @ID query-subtitle-tag-handler
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/subtitle [get]
 // curl http://localhost:port/dataset/subtitle
-func querySubtitleTagHandler(c *gin.Context){
+func QuerySubtitleTagHandler(c *gin.Context){
 	// connect db
 	db, err := sql.Open("postgres",connStr)
 	if err != nil{
@@ -60,8 +68,19 @@ func querySubtitleTagHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK,  "message": dataSetVo})
 }
 
-// curl http://localhost:port/dataset/subtitle/${subtitle_id}
-func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
+// QuerySubtitleBySubtitleTagIdHandler example
+// @Summary get this subtitleTagId detail list
+// @Description 
+// @Tags dataset subtitle 
+// @ID query-subtitle-by-subtitle-tagId-handler
+// @Accept  json
+// @Produce  json
+// @Param	subtitleTagId	path	string	true	"subtitleTag id"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need subtitleTag ID!!"
+// @Router /dataset/subtitle/{subtitleTagId} [get]
+// curl http://localhost:port/dataset/subtitle/${subtitleTagId}
+func QuerySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	subtitleTagIdStr := c.Param("subtitleTagId")
 
 	// connect db
@@ -121,9 +140,17 @@ func querySubtitleBySubtitleTagIdHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": dataSetVo})
 }
 
-
-// curl http://localhost:port/dataset/getSubTitleThumbnail
-func getSubTitleThumbnail(c *gin.Context){
+// GetSubTitleThumbnail example
+// @Summary update Thumbnail info for all subtitle data
+// @Description 
+// @Tags dataset subtitle 
+// @ID get-subTitle-thumbnail
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/subTitleThumbnail [get]
+// curl http://localhost:port/dataset/subTitleThumbnail
+func GetSubTitleThumbnail(c *gin.Context){
 	log.Info("getSubTitleThumbnail")
 
 	// connect db
@@ -192,12 +219,23 @@ func getSubTitleThumbnail(c *gin.Context){
 }
 
 
+// Url2DownloadSubtitleTag example
+// @Summary download dataset by subtitleTagId
+// @Description 
+// @Tags dataset subtitle 
+// @ID url-to-download-subtitle-tag
+// @Accept  json
+// @Produce  json
+// @Param	subtitleTagId	path	string	true	"Subtitle Tag ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Subtitle Tag ID!!"
+// @Router /dataset/youtubeUrl/subtitle/{subtitleTagId} [get]
 // curl --request GET \
 // http://localhost:port/dataset/youtubeUrl/subtitle/${subtitleTagId} \
 // --output ${filename}
 // download this dataset all videos into one zip
-func url2DownloadSubtitleTag(c *gin.Context){
-	log.Info("start url2DownloadSubtitleTag")
+func Url2DownloadSubtitleTag(c *gin.Context){
+	log.Info("start Url2DownloadSubtitleTag")
 	subtitleTagIdStr := c.Param("subtitleTagId")
 	// parentFolderName : subtitle_N , ex. subtitle_1,subtitle_2...
 	parentFolderName := SUBTITLE_PATH + subtitleTagIdStr
@@ -247,10 +285,21 @@ func url2DownloadSubtitleTag(c *gin.Context){
 	}
 }
 
+// Url2DownloadSubtitleId example
+// @Summary download video by subtitleId
+// @Description
+// @Tags dataset subtitle 
+// @ID url-to-download-subtitle-id
+// @Accept  json
+// @Produce  json
+// @Param	subtitleId	path	string	true	"Subtitle ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Subtitle ID!!"
+// @Router /dataset/youtubeUrl/subtitleById/{subtitleId} [get]
 // curl --request GET \
-// http://localhost:port/dataset/youtubeUrl/subtitleById/${subtitle_id} \
+// http://localhost:port/dataset/youtubeUrl/subtitleById/${subtitleId} \
 // --output filename.mp4
-func url2DownloadSubtitleId(c *gin.Context){
+func Url2DownloadSubtitleId(c *gin.Context){
 	log.Info("start url2DownloadSubtitleId")
 	subtitleIdStr := c.Param("subtitleId")
 

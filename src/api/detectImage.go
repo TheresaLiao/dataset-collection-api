@@ -11,15 +11,22 @@ import (
 
 var detectImgUrl = "http://task5-4-8-TH:8080/yolo_coco_image"
 
+// PostDetectImgHandler example
+// @Summary detect Imgage object
+// @Tags get data list by filter parameter
+// @Description post by binary image output json string
+// @Accept  multipart/form-data
+// @Produce  json
+// @Success 200 {object} string	"ok"
+// @Router /filterfun/detectImg [post]
 /*
  * input binary 
  * output json file
  */
-
 // curl -X POST \
 // --data-binary "@/file_path" \
 // http://localhost:port/filterfun/detectImg
-func postDetectImgHandler(c *gin.Context) {
+func PostDetectImgHandler(c *gin.Context) {
 	log.Info("postDetectImgHandler")
 	log.Info("detectImgUrl : " + detectImgUrl)
 
@@ -72,12 +79,25 @@ func detectionApiPost(apiUrl string,c *gin.Context)(httpResp HttpResp) {
 	return HttpResp{resp.StatusCode, context}
 }
 
+// GetYoloImg example
+// @Summary download yolo detect image file
+// @Description 
+// @Tags yolo resualt
+// @ID get-yolo-img
+// @Accept  json
+// @Produce  json
+// @Param   filename	path	string	true  "File Name"
+// @Param   youtubeId	body	string	true  "Youtube Id"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need File Name!!"
+// @Failure 404 {object} string "We need Youtube Id!!"
+// @Router /filterfun/getYoloImg [post]
 // curl --header "Content-Type: application/json" \
 // --request POST \
 // --data '{"filename":"res_00011441.jpg","youtubeId":"zoqVFEuVPJY"}' \
 // http://localhost:port/filterfun/getYoloImg \
 // --output res_00011441.mp4
-func getYoloImg(c *gin.Context){
+func GetYoloImg(c *gin.Context){
 	log.Info("getYoloImg")	
 	var getImageVo GetImageVo
 	c.BindJSON(&getImageVo)
@@ -100,12 +120,25 @@ func getYoloImg(c *gin.Context){
 	c.Data(http.StatusOK, "text/html; charset=utf-8", content)
 }
 
+// GetLprImg example
+// @Summary download lpr detect image file
+// @Description 
+// @Tags lpr resualt
+// @ID get-lpr-img
+// @Accept  json
+// @Produce  json
+// @Param   filename	path	string	true  "File Name"
+// @Param   youtubeId	body	string	true  "Youtube Id"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need File Name!!"
+// @Failure 404 {object} string "We need Youtube Id!!"
+// @Router /filterfun/getLprImg [post]
 // curl --header "Content-Type: application/json" \
 // --request POST \
 // --data '{"filename":"res_00011441.jpg","youtubeId":"zoqVFEuVPJY"}' \
 // http://localhost:port/filterfun/getLprImg \
 // --output res_00011441.mp4
-func getLprImg(c *gin.Context){
+func GetLprImg(c *gin.Context){
 	log.Info("getYoloImg")	
 	var getImageVo GetImageVo
 	c.BindJSON(&getImageVo)

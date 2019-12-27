@@ -23,9 +23,17 @@ const SEARCH_KEYWORD3 = "行車紀錄+事故"
 const SEARCH_KEYWORD4 = "車禍+行車紀錄" 
 const SEARCH_KEYWORD5 = "車禍+行車視角" 
 
-
+// QueryTrainTwOrgHandler example
+// @Summary get car type summary
+// @Description  
+// @Tags dataset car type
+// @ID query-train-twOrg-handler
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/queryTrainTwOrg [get]
 // curl http://localhost:port/dataset/queryTrainTwOrg
-func queryTrainTwOrgHandler(c *gin.Context){
+func QueryTrainTwOrgHandler(c *gin.Context){
 	log.Info("queryTrainTwOrgHandler")
 
 	// connect db
@@ -83,8 +91,19 @@ func queryTrainTwOrgHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": dataSetVo})
 }
 
+// QueryTrainYoloTagByYoutubeIdHandler example
+// @Summary get yolo detect info by youtubeId
+// @Description
+// @Tags yolo resualt
+// @ID query-train-yolo-tag-by-youtubeId-handler
+// @Accept  json
+// @Produce  json
+// @Param	youtubeId	path	string	true	"Youtube ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Youtube ID!!"
+// @Router /dataset/queryTrainYoloTag/{youtubeId} [get]
 // curl http://localhost:port/dataset/queryTrainYoloTag/0-7_nvNNdcM
-func queryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
+func QueryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
 	log.Info("queryTrainYoloTagByYoutubeIdHandler")
 	youtubeIdStr := c.Param("youtubeId")
 
@@ -145,9 +164,19 @@ func queryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
 }
 
 
+// QueryTrainLprTagByYoutubeIdHandler example
+// @Summary trigger video into lpr detect image
+// @Description
+// @Tags lpr resualt
+// @ID query-train-lpr-tag-by-youtubeId-handler
+// @Accept  json
+// @Produce  json
+// @Param	youtubeId	path	string	true	"Youtube ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need Youtube ID!!"
+// @Router /dataset/queryTrainLprTag/{youtubeId} [get]
 //curl http://localhost:port/dataset/queryTrainLprTag/:{youtubeId}
-
-func queryTrainLprTagByYoutubeIdHandler(c *gin.Context){
+func QueryTrainLprTagByYoutubeIdHandler(c *gin.Context){
 	log.Info("queryTrainLprTagByYoutubeIdHandler")
 	youtubeIdStr := c.Param("youtubeId")
 
@@ -207,8 +236,17 @@ func queryTrainLprTagByYoutubeIdHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": trainTwTagVos})
 }
 
+// GetSearchByKeyWord example
+// @Summary insert new data by keyword
+// @Description
+// @Tags dataset car type
+// @ID get-search-by-keyWord
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /filterfun/youtubeUrl/getSearchByKeyWord [get]
 // curl http://localhost:port/filterfun/youtubeUrl/getSearchByKeyWord
-func getSearchByKeyWord(c *gin.Context){
+func GetSearchByKeyWord(c *gin.Context){
 	log.Info("getSearchByKeyWord")
 	
 	keyWords := getKeyWordList()
@@ -347,10 +385,19 @@ func insertTrainTwOrgItem(item TrainTwOrgVo){
 // 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": pic})
 // }
 
+// GetTrainTwOrgThumbnail example
+// @Summary update Thumbnail info for all car type data
+// @Description 
+// @Tags dataset car type
+// @ID get-train-twOrg-thumbnail
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/queryTrainTwOrg/getThumbnail [get]
 // UPDATE "train_tw_org"."thumbnail" 
 // WHERE "youtube_id" != 'NULL' AND "thumbnail" = ''
 // curl http://localhost:port/dataset/queryTrainTwOrg/getThumbnail
-func getTrainTwOrgThumbnail(c *gin.Context){
+func GetTrainTwOrgThumbnail(c *gin.Context){
 	log.Info("getTrainTwOrgThumbnail")
 
 	// connect db
@@ -497,10 +544,19 @@ func getYoutubeListSearchByKeyWord(searchKeyWord string)(trainTwOrgVos []TrainTw
 	return trainTwOrgVos
 }
 
+// Url2DownloadTrainTwOrg example
+// @Summary download all video ,than update table and trigger to yolo/lpr
+// @Description 
+// @Tags dataset car type
+// @ID url-to-download-train-twOrg
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /filterfun/url2DownloadTrainTwOrg [get]
 // curl http://localhost:port/filterfun/url2DownloadTrainTwOrg
 // auto download all video and update table
 // also trigger detect object & lpr 
-func url2DownloadTrainTwOrg(c *gin.Context){
+func Url2DownloadTrainTwOrg(c *gin.Context){
 	log.Info("url2DownloadTrainTwOrg")
 	// srcDirPath : /tmp/traintworg
 	srcDirPath := filepath.Join(DOWNLOADS_PATH, TRAINTWORG_PATH)
@@ -570,11 +626,22 @@ func queryTrainTwOrgUrl()([]string){
 	return records
 }
 
+// Url2DownloadCarType example
+// @Summary download video by youtubeId
+// @Description 
+// @Tags dataset car type
+// @ID url-to-download-car-type
+// @Accept  json
+// @Produce  json
+// @Param	youtubeId	path	int	true	"Youtube ID"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need youtube Id!!"
+// @Router /dataset/youtubeUrl/cartype/{youtubeId} [get]
 // curl --request GET \
 // http://localhost:port/dataset/youtubeUrl/cartype/0-7_nvNNdcM \
 // --output 555.mp4
 // download from client, by youtubeId
-func url2DownloadCarType(c *gin.Context){
+func Url2DownloadCarType(c *gin.Context){
 	log.Info("start url2DownloadCarType")
 	youtubeIdStr := c.Param("youtubeId")
 

@@ -10,8 +10,17 @@ import (
 
 type CarAccidentTag struct {}
 
+// QueryCarAccidentTagHandler example
+// @Summary get car accident summary
+// @Description
+// @Tags dataset car accident
+// @ID query-carAccident-tag-handler
+// @Accept  json
+// @Produce  json
+// @Success 200 {string} string	"ok"
+// @Router /dataset/caracdnt [get]
 // curl http://localhost:port/dataset/caracdnt
-func queryCarAccidentTagHandler(c *gin.Context){
+func QueryCarAccidentTagHandler(c *gin.Context){
 	log.Info("queryCarAccidentTagHandler")
 		
 	// connect db
@@ -57,8 +66,19 @@ func queryCarAccidentTagHandler(c *gin.Context){
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK,  "message": dataSetVo})
 }
 
-//  curl http://localhost:port/dataset/caracdnt/:{car_accident.id}
-func queryCarAccidentByIdHandler(c *gin.Context){
+// QueryCarAccidentByIdHandler example
+// @Summary get list by carAccidentId
+// @Description 
+// @Tags dataset car accident
+// @ID query-carAccident-by-id-handler
+// @Accept  json
+// @Produce  json
+// @Param	carAccidentId	path	int	true	"Car Accident Id"
+// @Success 200 {string} string	"ok"
+// @Failure 400 {object} string "We need CarAccidentId!!"
+// @Router /dataset/caracdnt/{carAccidentId} [get]
+// curl http://localhost:port/dataset/caracdnt/${carAccidentId}
+func QueryCarAccidentByIdHandler(c *gin.Context){
 		log.Info("queryCarAccidentByIdHandler")
 		carAccidentIdStr := c.Param("carAccidentId")
 

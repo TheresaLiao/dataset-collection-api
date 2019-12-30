@@ -13,9 +13,8 @@ import (
 // @Description 
 // @Tags dataset list
 // @ID get-dataset-list
-// @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200 {string} json ""
 // @Router /dataset/list [get]
 // curl http://localhost:port/dataset/list
 func GetDatasetList(c *gin.Context){

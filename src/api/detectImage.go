@@ -17,7 +17,7 @@ var detectImgUrl = "http://task5-4-8-TH:8080/yolo_coco_image"
 // @Description post by binary image output json string
 // @Accept  multipart/form-data
 // @Produce  json
-// @Success 200 {object} string	"ok"
+// @Success 200	{object}	main.YoloItem	"ok"
 // @Router /filterfun/detectImg [post]
 /*
  * input binary 

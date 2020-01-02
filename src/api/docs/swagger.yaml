@@ -1,3 +1,152 @@
+definitions:
+  main.CarAccidentVo:
+    properties:
+      id:
+        type: integer
+      keyWord:
+        type: string
+    type: object
+  main.CarAccitVo:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/main.CarAccidentVo'
+        type: array
+      desc:
+        type: string
+      title:
+        type: string
+    type: object
+  main.DatasetSummaryVo:
+    properties:
+      api:
+        type: string
+      desc:
+        type: string
+      title:
+        type: string
+    required:
+    - api
+    - desc
+    - title
+    type: object
+  main.Subtitle:
+    properties:
+      id:
+        type: integer
+      srtUrl:
+        type: string
+      thumbnail:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  main.SubtitleTag:
+    properties:
+      id:
+        type: integer
+      tagName:
+        type: string
+      thumbnail:
+        type: string
+    type: object
+  main.SubtitleTagDataSetVo:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/main.SubtitleTag'
+        type: array
+      desc:
+        type: string
+      title:
+        type: string
+    type: object
+  main.SubtitleVo:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/main.Subtitle'
+        type: array
+      desc:
+        type: string
+      title:
+        type: string
+    type: object
+  main.TrainTwOrgDataSetVo:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/main.TrainTwOrgVo'
+        type: array
+      desc:
+        type: string
+      title:
+        type: string
+    type: object
+  main.TrainTwOrgVo:
+    properties:
+      carAccidentID:
+        type: string
+      keyWord:
+        type: string
+      thumbnail:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+      youtubeId:
+        type: string
+    type: object
+  main.TrainTwTagVo:
+    properties:
+      filename:
+        type: string
+      height:
+        type: integer
+      id:
+        type: integer
+      object:
+        type: string
+      width:
+        type: integer
+      x_num:
+        type: integer
+      y_num:
+        type: integer
+      youtubeId:
+        type: string
+    type: object
+  main.YoloItem:
+    properties:
+      filename:
+        type: string
+      tag:
+        items:
+          $ref: '#/definitions/main.YoloTag'
+        type: array
+    type: object
+  main.YoloTag:
+    properties:
+      confidences:
+        items:
+          type: integer
+        type: array
+      objectHeight:
+        type: integer
+      objectPicX:
+        type: integer
+      objectPicY:
+        type: integer
+      objectTypes:
+        items:
+          type: string
+        type: array
+      objectWidth:
+        type: integer
+    type: object
 host: 10.201.252.7:30014
 info:
   contact:
@@ -22,7 +171,7 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            $ref: '#/definitions/main.CarAccitVo'
       summary: get car accident summary
       tags:
       - dataset car accident
@@ -43,7 +192,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/main.TrainTwOrgVo'
+            type: array
         "400":
           description: We need CarAccidentId!!
           schema:
@@ -53,8 +204,6 @@ paths:
       - dataset car accident
   /dataset/list:
     get:
-      consumes:
-      - application/json
       operationId: get-dataset-list
       produces:
       - application/json
@@ -62,7 +211,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/main.DatasetSummaryVo'
+            type: array
       summary: show all dataset list info
       tags:
       - dataset list
@@ -83,7 +234,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/main.TrainTwTagVo'
+            type: array
         "400":
           description: We need Youtube ID!!
           schema:
@@ -102,7 +255,7 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            $ref: '#/definitions/main.TrainTwOrgDataSetVo'
       summary: get car type summary
       tags:
       - dataset car type
@@ -117,7 +270,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              type: string
+            type: array
       summary: update Thumbnail info for all car type data
       tags:
       - dataset car type
@@ -138,7 +293,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/main.TrainTwTagVo'
+            type: array
         "400":
           description: We need Youtube ID!!
           schema:
@@ -157,7 +314,9 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            items:
+              type: string
+            type: array
       summary: update Thumbnail info for all subtitle data
       tags:
       - dataset subtitle
@@ -172,7 +331,7 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            $ref: '#/definitions/main.SubtitleTagDataSetVo'
       summary: get subtitle summary
       tags:
       - dataset subtitle
@@ -193,7 +352,7 @@ paths:
         "200":
           description: ok
           schema:
-            type: string
+            $ref: '#/definitions/main.SubtitleVo'
         "400":
           description: We need subtitleTag ID!!
           schema:
@@ -287,7 +446,7 @@ paths:
         "200":
           description: ok
           schema:
-            $ref: '#/definitions/string'
+            $ref: '#/definitions/main.YoloItem'
       summary: detect Imgage object
       tags:
       - get data list by filter parameter

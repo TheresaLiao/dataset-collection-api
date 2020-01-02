@@ -33,7 +33,7 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.CarAccitVo"
                         }
                     }
                 }
@@ -65,7 +65,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.TrainTwOrgVo"
+                            }
                         }
                     },
                     "400": {
@@ -79,9 +82,6 @@
         },
         "/dataset/list": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -94,7 +94,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.DatasetSummaryVo"
+                            }
                         }
                     }
                 }
@@ -126,7 +129,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.TrainTwTagVo"
+                            }
                         }
                     },
                     "400": {
@@ -155,7 +161,7 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.TrainTwOrgDataSetVo"
                         }
                     }
                 }
@@ -178,7 +184,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -210,7 +219,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.TrainTwTagVo"
+                            }
                         }
                     },
                     "400": {
@@ -239,7 +251,10 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -262,7 +277,7 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.SubtitleTagDataSetVo"
                         }
                     }
                 }
@@ -294,7 +309,7 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.SubtitleVo"
                         }
                     },
                     "400": {
@@ -437,7 +452,7 @@
                     "200": {
                         "description": "ok",
                         "schema": {
-                            "$ref": "#/definitions/string"
+                            "$ref": "#/definitions/main.YoloItem"
                         }
                     }
                 }
@@ -766,6 +781,235 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.CarAccidentVo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "keyWord": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.CarAccitVo": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.CarAccidentVo"
+                    }
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.DatasetSummaryVo": {
+            "type": "object",
+            "required": [
+                "api",
+                "desc",
+                "title"
+            ],
+            "properties": {
+                "api": {
+                    "type": "string"
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Subtitle": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "srtUrl": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.SubtitleTag": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "tagName": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.SubtitleTagDataSetVo": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.SubtitleTag"
+                    }
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.SubtitleVo": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.Subtitle"
+                    }
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TrainTwOrgDataSetVo": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.TrainTwOrgVo"
+                    }
+                },
+                "desc": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TrainTwOrgVo": {
+            "type": "object",
+            "properties": {
+                "carAccidentID": {
+                    "type": "string"
+                },
+                "keyWord": {
+                    "type": "string"
+                },
+                "thumbnail": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "youtubeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.TrainTwTagVo": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "height": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "object": {
+                    "type": "string"
+                },
+                "width": {
+                    "type": "integer"
+                },
+                "x_num": {
+                    "type": "integer"
+                },
+                "y_num": {
+                    "type": "integer"
+                },
+                "youtubeId": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.YoloItem": {
+            "type": "object",
+            "properties": {
+                "filename": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.YoloTag"
+                    }
+                }
+            }
+        },
+        "main.YoloTag": {
+            "type": "object",
+            "properties": {
+                "confidences": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "objectHeight": {
+                    "type": "integer"
+                },
+                "objectPicX": {
+                    "type": "integer"
+                },
+                "objectPicY": {
+                    "type": "integer"
+                },
+                "objectTypes": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "objectWidth": {
+                    "type": "integer"
                 }
             }
         }

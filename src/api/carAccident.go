@@ -17,7 +17,7 @@ type CarAccidentTag struct {}
 // @ID query-carAccident-tag-handler
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200	{object}	main.CarAccitVo	"ok"
 // @Router /dataset/caracdnt [get]
 // curl http://localhost:port/dataset/caracdnt
 func QueryCarAccidentTagHandler(c *gin.Context){
@@ -74,7 +74,7 @@ func QueryCarAccidentTagHandler(c *gin.Context){
 // @Accept  json
 // @Produce  json
 // @Param	carAccidentId	path	int	true	"Car Accident Id"
-// @Success 200 {string} string	"ok"
+// @Success 200	{array}	main.TrainTwOrgVo	"ok"
 // @Failure 400 {object} string "We need CarAccidentId!!"
 // @Router /dataset/caracdnt/{carAccidentId} [get]
 // curl http://localhost:port/dataset/caracdnt/${carAccidentId}

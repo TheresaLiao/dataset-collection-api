@@ -15,7 +15,7 @@ import (
 // @ID query-subtitle-tag-handler
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200	{object}	main.SubtitleTagDataSetVo	"ok"
 // @Router /dataset/subtitle [get]
 // curl http://localhost:port/dataset/subtitle
 func QuerySubtitleTagHandler(c *gin.Context){
@@ -76,7 +76,7 @@ func QuerySubtitleTagHandler(c *gin.Context){
 // @Accept  json
 // @Produce  json
 // @Param	subtitleTagId	path	string	true	"subtitleTag id"
-// @Success 200 {string} string	"ok"
+// @Success 200	{object}	main.SubtitleVo	"ok"
 // @Failure 400 {object} string "We need subtitleTag ID!!"
 // @Router /dataset/subtitle/{subtitleTagId} [get]
 // curl http://localhost:port/dataset/subtitle/${subtitleTagId}
@@ -147,7 +147,7 @@ func QuerySubtitleBySubtitleTagIdHandler(c *gin.Context){
 // @ID get-subTitle-thumbnail
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200 {array} string	"ok"
 // @Router /dataset/subTitleThumbnail [get]
 // curl http://localhost:port/dataset/subTitleThumbnail
 func GetSubTitleThumbnail(c *gin.Context){

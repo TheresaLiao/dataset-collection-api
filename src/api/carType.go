@@ -30,7 +30,7 @@ const SEARCH_KEYWORD5 = "車禍+行車視角"
 // @ID query-train-twOrg-handler
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200	{object}	main.TrainTwOrgDataSetVo	"ok"
 // @Router /dataset/queryTrainTwOrg [get]
 // curl http://localhost:port/dataset/queryTrainTwOrg
 func QueryTrainTwOrgHandler(c *gin.Context){
@@ -99,7 +99,7 @@ func QueryTrainTwOrgHandler(c *gin.Context){
 // @Accept  json
 // @Produce  json
 // @Param	youtubeId	path	string	true	"Youtube ID"
-// @Success 200 {string} string	"ok"
+// @Success 200	{array}	main.TrainTwTagVo	"ok"
 // @Failure 400 {object} string "We need Youtube ID!!"
 // @Router /dataset/queryTrainYoloTag/{youtubeId} [get]
 // curl http://localhost:port/dataset/queryTrainYoloTag/0-7_nvNNdcM
@@ -172,7 +172,7 @@ func QueryTrainYoloTagByYoutubeIdHandler(c *gin.Context){
 // @Accept  json
 // @Produce  json
 // @Param	youtubeId	path	string	true	"Youtube ID"
-// @Success 200 {string} string	"ok"
+// @Success 200	{array}	main.TrainTwTagVo	"ok"
 // @Failure 400 {object} string "We need Youtube ID!!"
 // @Router /dataset/queryTrainLprTag/{youtubeId} [get]
 //curl http://localhost:port/dataset/queryTrainLprTag/:{youtubeId}
@@ -392,7 +392,7 @@ func insertTrainTwOrgItem(item TrainTwOrgVo){
 // @ID get-train-twOrg-thumbnail
 // @Accept  json
 // @Produce  json
-// @Success 200 {string} string	"ok"
+// @Success 200 {array} string	"ok"
 // @Router /dataset/queryTrainTwOrg/getThumbnail [get]
 // UPDATE "train_tw_org"."thumbnail" 
 // WHERE "youtube_id" != 'NULL' AND "thumbnail" = ''

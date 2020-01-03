@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
 )
 
 // Test db
-const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
-//const connStr = "postgres://admin:12345@Test_MyPostgres:5432/Test_db?sslmode=disable"
+//const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
+const connStr = "postgres://admin:12345@Test_Postgres:5432/Test_db?sslmode=disable"
 
 // production
 //const connStr = "postgres://admin:12345@MyPostgres:5432/database_project?sslmode=disable"
@@ -27,17 +26,31 @@ var whiteip6 = "210.61.209.195"
 var whiteip7 = "210.61.209.196"
 var whiteip8 = "210.61.209.197"
 
+// Div-N Vincent
+var whiteip9 = "140.96.116.61"
+var whiteip10 = "140.96.158.25"
+
 var cntConnection = 0
 
 type HttpResp struct {
 	StatusCode int
 	Context    string
 }
+// @title Dataset Collection API
+// @version 1.0
+// @description This api call data from youtube anf table
 
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host 10.201.252.7:30014
+// 10.174.61.1:30017 for Div-X
 func main() {
-	//init log
 	// initLogSetting(logging.DEBUG)
-	fmt.Println("start api")
 	router := gin.Default()
 
 	// Check client ip is accept to connect
@@ -50,25 +63,54 @@ func main() {
 	whitelist[whiteip6] = true
 	whitelist[whiteip7] = true
 	whitelist[whiteip8] = true
-
+	whitelist[whiteip9] = true
+	whitelist[whiteip10] = true
 	//router.Use(IPWhiteList(whitelist))
 
-	//GET Default version
+	// GET Default version
 	router.GET("/", check)
+
+	// dataset list
+	router.GET("/dataset/list",GetDatasetList) 							//summary.go
 	
-	// filter fun.
-	router.POST("/filterfun/detectImg", postDetectImgHandler)
-	router.POST("/filterfun/youtubeUrl", url2file)
-	router.GET("/filterfun/youtubeUrl/subtitle/:subtitleTagId", url2DownloadSubtitle)
-	router.GET("/filterfun/youtubeUrl/caracdnt/:carAccidentTagId", url2DownloadCaracdnt)
+	// get data list by filter parameter
+	router.POST("/filterfun/detectImg", PostDetectImgHandler) 			//detectImage.go
+	router.POST("/filterfun/youtubeUrl", Url2file) 						//filterfun.go
+	// router.GET("/filterfun/youtubeInfo/:youtubeId", getYoutubeInfoById) //carType.go
 
-	// dataset
-	router.GET("/dataset/subtitle", querySubtitleTagHandler)
-	router.GET("/dataset/subtitle/:subtitleTagId", querySubtitleBySubtitleTagIdHandler)
+	//========================= dataset list =========================
+	// dataset subtitle 
+	// TO-DO add srt mapping table
+	router.GET("/dataset/subtitle", QuerySubtitleTagHandler) 							//subTitle.go
+	router.GET("/dataset/subtitle/:subtitleTagId", QuerySubtitleBySubtitleTagIdHandler) //subTitle.go
+	router.GET("/dataset/youtubeUrl/subtitle/:subtitleTagId", Url2DownloadSubtitleTag) 	//subTitle.go
+	router.GET("/dataset/youtubeUrl/subtitleById/:subtitleId", Url2DownloadSubtitleId) 	//subTitle.go
+	router.GET("/dataset/subTitleThumbnail", GetSubTitleThumbnail) 					//subTitle.go
 
-	router.GET("/dataset/caracdnt", queryCarAccidentTagHandler)
-	router.GET("/dataset/caracdnt/:carAccidentTagId", queryCarAccidentByCarAccidentTagIdHandler)
+	// dataset car type
+	router.GET("/dataset/queryTrainTwOrg",QueryTrainTwOrgHandler) 				//carType.go
+	router.GET("/dataset/url2DownloadTrainTwOrg",Url2DownloadTrainTwOrg) 		//carType.go
+	router.GET("/dataset/youtubeUrl/cartype/:youtubeId",Url2DownloadCarType)	//carType.go
+	router.GET("/dataset/queryTrainTwOrg/getThumbnail", GetTrainTwOrgThumbnail) //carType.go
+	router.GET("/filterfun/youtubeUrl/getSearchByKeyWord", GetSearchByKeyWord)  //carType.go
 
+	// dataset car accident
+	// TO-DO key word
+	router.GET("/dataset/caracdnt", QueryCarAccidentTagHandler) 				//carAccident.go
+	router.GET("/dataset/caracdnt/:carAccidentId", QueryCarAccidentByIdHandler) //carAccident.go
+	
+	//========================= after training =========================
+	// get yolo resualt from car type
+	router.GET("/dataset/queryTrainYoloTag/:youtubeId",QueryTrainYoloTagByYoutubeIdHandler) //carType.go
+	router.GET("/filterfun/trainTwOrg2TrainYolo/:youtubeId",TrainTwOrg2TrainYolo) 			//filterfun.go
+	router.GET("/filterfun/parsingTrainYoloResult",ParsingTrainYoloResult) 					//filterfun.go
+	router.POST("/filterfun/getYoloImg",GetYoloImg)											//detectImage.go
+
+	// get lpr resualt from car type
+	router.GET("/dataset/queryTrainLprTag/:youtubeId", QueryTrainLprTagByYoutubeIdHandler) 	//carType.go
+	router.GET("/filterfun/trainTwOrg2TrainLpr/:youtubeId", TrainTwOrg2TrainLpr) 			//filterfun.go
+	router.GET("/filterfun/parsingTrainLprResult", ParsingTrainLprResult) 					//filterfun.go
+	router.POST("/filterfun/getLprImg", GetLprImg)											//detectImage.go
 
 	router.Run(":80")
 }
@@ -92,17 +134,6 @@ func IPWhiteList(whitelist map[string]bool) gin.HandlerFunc {
 		}
 		cntConnection++
 	}
-}
-
-func convertBody2Str(resp *http.Response) (context string) {
-	data, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Info("Error ioutil.ReadAll")
-		log.Info(string(data))
-		return
-	}
-	//log.Info(string(data))
-	return string(data)
 }
 
 func checkError(err error) {

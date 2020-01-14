@@ -1,5 +1,6 @@
 ## Swagger api file
 ### auto gen swagger json file
+ref : https://github.com/swaggo/swag
 ```shell=
 $ cd ~/dataset-collection-api
 $ sh swagger/swaggo/auto_build.sh

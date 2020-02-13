@@ -95,10 +95,10 @@ func QueryCarAccidentByIdHandler(c *gin.Context){
 		}
 		log.Info("success connection")
 
-		sql_statement := ` SELECT B."CarAccidentID", B."title", B."youtube_id", B."URL", B."thumbnail", B."KeyWord"
+		sql_statement := ` SELECT B."CarAccidentID", B."title", B."youtube_id", B."URL", B."thumbnail", B."KeyWord", B."collision_time", B."video_length", B."car_type"
 											 FROM "car_accident" AS A
 											 LEFT JOIN train_tw_org as B ON A."KeyWord" = B."KeyWord"
-											 WHERE A."id" = $1`
+											 WHERE A."id" = $1` 
 	
 		rows, err := db.Query(sql_statement, carAccidentIdStr)
 		checkError(err)
@@ -110,11 +110,14 @@ func QueryCarAccidentByIdHandler(c *gin.Context){
 		var url string
 		var thumbnail string
 		var keyWord string
+		var collisionTime string
+		var videoLength string
+		var carType string
 		var trainTwOrgVo TrainTwOrgVo
 		var trainTwOrgVos []TrainTwOrgVo
 
 		for rows.Next() {
-			switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url, &thumbnail, &keyWord); err {
+			switch err := rows.Scan(&carAccidentID, &title, &youtube_id, &url, &thumbnail, &keyWord, &collisionTime, &videoLength, &carType); err {
 					case sql.ErrNoRows:
 					log.Info("No rows were returned")
 			case nil:			
@@ -124,6 +127,9 @@ func QueryCarAccidentByIdHandler(c *gin.Context){
 					trainTwOrgVo.Url = url
 					trainTwOrgVo.Thumbnail = thumbnail
 					trainTwOrgVo.KeyWord = keyWord
+					trainTwOrgVo.CollisionTime = collisionTime
+					trainTwOrgVo.VideoLength = videoLength
+					trainTwOrgVo.CarType = carType
 					trainTwOrgVos = append(trainTwOrgVos, trainTwOrgVo)
 			default:
 					checkError(err)

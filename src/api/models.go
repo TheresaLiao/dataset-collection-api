@@ -103,6 +103,9 @@ type TrainTwOrgVo struct {
 	Url 			string `json:"url"`
 	Thumbnail 		string `json:"thumbnail"`
 	KeyWord 		string `json:"keyWord"`
+	CollisionTime 	string `json:"collision_time"`
+	VideoLength 	string `json:"video_length"`
+	CarType 		string `json:"car_type"`
 }
 
 type TrainTwTagVo struct {

@@ -1,5 +1,5 @@
 container_name="task5-4-7-th"
-image_name="task5-4-6-th:191220-th"
+image_name="task5-4-6-th:200211-th"
 
 port1="50017"
 

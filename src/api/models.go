@@ -106,6 +106,7 @@ type TrainTwOrgVo struct {
 	CollisionTime 	string `json:"collision_time"`
 	VideoLength 	string `json:"video_length"`
 	CarType 		string `json:"car_type"`
+
 }
 
 type TrainTwTagVo struct {

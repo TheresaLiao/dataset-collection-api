@@ -20,7 +20,6 @@ WORKDIR /go/src/github.com/iawia002/annie
 RUN git pull
 RUN git checkout tags/0.9.8
 
-
 WORKDIR /
 RUN mkdir -p /app
 WORKDIR /app

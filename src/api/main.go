@@ -9,7 +9,9 @@ import (
 
 // Test db
 //const connStr = "postgres://admin:12345@140.96.0.34:50003/Test_db?sslmode=disable"
-const connStr = "postgres://admin:12345@Test_Postgres:5432/Test_db?sslmode=disable"
+//const connStr = "postgres://admin:12345@Test_Postgres:5432/Test_db?sslmode=disable"
+
+const connStr = "postgres://admin:12345@task5-4-0-TH:5432/Test_db?sslmode=disable"
 
 // production
 //const connStr = "postgres://admin:12345@MyPostgres:5432/database_project?sslmode=disable"

@@ -1,16 +1,16 @@
-container_name="task5-4-7-th"
+container_name="task5-4-4-TH"
 image_name="task5-4-6-th:191220-th"
-
-port1="50017"
+port1="50014"
+host_path="/home/ccma/dataset_doc_dev"
 
 docker stop $container_name
 docker rm -f $container_name
-docker build -t $image_name -f docker/Dockerfile-Test .
+## docker build -t $image_name -f docker/Dockerfile .
 docker run --name $container_name \
            -ti -d \
            --network=datasetbridge \
            -p $port1:80 \
-           -v /home/ccma/dataset_doc_dev:/tmp \
+           -v $host_path:/tmp \
            $image_name
 
 docker rmi -f $(docker images | grep "<none>")

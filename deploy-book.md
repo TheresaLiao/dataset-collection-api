@@ -84,7 +84,7 @@ $ cd dataset-collection-api-engine-Theresa
 ## task5-4-3-TH, Image=datacollection-deidentlpr:1.0.0-TH
 $ sh ./iclx_script/task5-4-3-TH-datacollection-deidentlpr_1.0.0-TH.sh
 
-## check task5-4-2-TH
+## check task5-4-3-TH
 $ docker ps
 CONTAINER ID IMAGE COMMAND    CREATED    STATUS    PORTS    NAMES
 ... datacollection-deidentlpr:1.0.0-TH "python python/run_a…" 2 days ago Up 2 days 8080/tcp task5-4-3-TH
@@ -106,11 +106,23 @@ $ curl -d '{"filename":"./traintworg/video/zvmK-fOoR8g_lpr/res_00002974.jpg"}' \
 ```
 ![](https://i.imgur.com/kazab6x.png)
 
-### 4.Just YOL API , ignore it
-* http://task5-4-8-TH:8080/yolo_coco_image : detect Img
+### 4. YOLO API for picture
+* task5-4-4-TH:8080/yolo_coco_image : just detect picture api
 ```shell=
-## deidentify lpr
-## task5-4-8-TH, Image=detect_yolo:1.0.0-TH
+$ cd dataset-collection-api-engine-Theresa
+
+## start yolo api detect pic
+## task5-4-4-TH, Image=datacollection-detectyolo-pic:1.0.0-TH
+$ sh ./iclx_script/task5-4-4-TH-datacollection-detectyolopic_1.0.0-TH.sh
+
+## check task5-4-4-TH
+$ docker ps
+CONTAINER ID IMAGE COMMAND    CREATED    STATUS    PORTS    NAMES
+7ef95062ff41 datacollection-detectyolo-pic:1.0.0-TH "python python/run_a…"   2 hours ago Up 2 hours 0.0.0.0:50014->8080/tcp task5-4-4-TH
+
+$ docker exec -ti task5-4-3-TH bash
+$ apt install curl
+$ cd /home/darknet_AlexeyAB/data
 ```
 
 
@@ -119,43 +131,16 @@ $ curl -d '{"filename":"./traintworg/video/zvmK-fOoR8g_lpr/res_00002974.jpg"}' \
 
 ```shell=
 $ cd dataset-collection-api-Theresa
-$ sh task5-4-4-TH_datacollection-api_1.0.0-TH.sh
+$ sh task5-4-5-TH_datacollection-api_1.0.0-TH.sh
 
 $ docker ps
 CONTAINER ID IMAGE COMMAND    CREATED    STATUS    PORTS    NAMES
-... datacollection-api:1.0.0-TH "/bin/sh -c /app/main" 5 hours ago Up 5 hours 22/tcp, 0.0.0.0:50014->80/tcp task5-4-4-TH
+... 7ef95062ff41 datacollection-detectyolo-pic:1.0.0-TH "python python/run_a…" 3 hours ago Up 3 hours 0.0.0.0:50014->8080/tcp   task5-4-4-TH
 ```
-* Test
-```shell=
-## yolo detect
-$ curl -X POST --data-binary "@/file_path" \
-http://localhost:50014/filterfun/detectImg
 
-## download & detect
-## 10.201.252.7:50014
-## 10.174.61.1:50014
-## http://10.201.252.7:50016/dataset/queryTrainTwOrg
-$ curl http://localhost:50014/dataset/queryTrainTwOrg
-$ curl http://localhost:50014/filterfun/url2DownloadTrainTwOrg
+![](https://i.imgur.com/udrac4Q.png)
 
-## get yolo resault
-$ curl http://localhost:50014/filterfun/parsingTrainYoloResult
-$ curl http://localhost:50014/dataset/queryTrainYoloTag/04jm7VfInbo
-$ curl --request GET \
-http://localhost:50014/filterfun/getYoloImg/0R85NEB8l64/res_00016914.jpg \
---output res_00016914.jpg
 
-$ curl --request GET \
-http://140.96.0.34:50014/filterfun/getYoloImg/C4rO3gowyxk/res_00000001.jpg \
---output res_00000001.jpg
-
-## get lpr resault
-$ curl http://localhost:50014/filterfun/parsingTrainLprResult
-$ curl http://localhost:50014/dataset/queryTrainLprTag/0YzQL00_b30
-$ curl --request GET \
-http://140.96.0.34:50014/filterfun/getLprImg/0WX9D_TR3HI/res_00000401.jpg \
---output res_00000401.jpg
-```
 ###### tags: `環購`
 
 

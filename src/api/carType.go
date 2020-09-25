@@ -255,6 +255,8 @@ func GetSearchByKeyWord(c *gin.Context){
 		ary := getYoutubeListSearchByKeyWord(keyWord)
 		trainTwOrgVos = append(trainTwOrgVos, ary...)
 	}
+	log.Info("Get YoutubeList from car_accident KeyWord : ")
+	log.Info(len(trainTwOrgVos))
 
 	youtubeIdSet := make(map[string]bool) // New empty set
 	getYoutubeIdList(youtubeIdSet)
@@ -265,9 +267,11 @@ func GetSearchByKeyWord(c *gin.Context){
 	srcDirPathViedo := filepath.Join(srcDirPath, VIEDO_PATH)
 
 	for _, item := range trainTwOrgVos {
+		log.Info("URL : "+item.YoutubeId)
 		if youtubeIdSet[item.YoutubeId] != true{
 			log.Info(item.KeyWord)
 			checkUrlAndDownload(item.Url, srcDirPathViedo)
+			log.Info("insert "+ item.YoutubeId +"into table train_tw_org ")
 			insertTrainTwOrgItem(item)
 		}
 	}	
@@ -566,6 +570,8 @@ func Url2DownloadTrainTwOrg(c *gin.Context){
 	log.Info("srcDirPathViedo:"+srcDirPathViedo)
 
 	urls := queryTrainTwOrgUrl()
+	log.Info("URL size")
+	log.Info(len(urls))
 
 	for _, url := range urls {
 		log.Info(url)

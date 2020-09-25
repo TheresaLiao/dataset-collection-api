@@ -17,10 +17,10 @@ RUN go get github.com/rs/zerolog
 #RUN git pull
 #RUN git checkout tags/v0.6.2
 
-#RUN go get github.com/iawia002/annie
-#WORKDIR /go/src/github.com/iawia002/annie
-#RUN git pull
-#RUN git checkout tags/0.9.8
+RUN go get github.com/iawia002/annie
+WORKDIR /go/src/github.com/iawia002/annie
+RUN git pull
+RUN git checkout tags/0.9.8
 
 WORKDIR /
 RUN mkdir -p /app

@@ -1,10 +1,10 @@
-container_name="task5-4-4-TH"
+container_name="task5-4-5-TH"
 image_name="datacollection-api:1.0.0-TH"
 
 data_org="/home/ccma/sdd/dataset_doc_dev_Theresa"
 data_out="/tmp"
 
-host_port="50014"
+host_port="50015"
 
 ## remove old image & build image
 docker stop $container_name

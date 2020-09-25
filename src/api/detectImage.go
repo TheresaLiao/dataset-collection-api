@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-var detectImgUrl = "http://task5-4-3-TH:8080/yolo_coco_image"
+var detectImgUrl = "http://task5-4-4-TH:8080/yolo_coco_image"
 
 // PostDetectImgHandler example
 // @Summary detect Imgage object
